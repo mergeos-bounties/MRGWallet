@@ -12,48 +12,54 @@
       <span class="dot"></span>
       <strong>MRGWallet</strong>
     </div>
-    <span id="mode-badge" class="badge">mock</span>
+    <div class="top-actions">
+      <div class="locale-toggle" role="group" aria-label="Language">
+        <button id="lang-en" type="button" aria-pressed="true">EN</button>
+        <button id="lang-vi" type="button" aria-pressed="false">VI</button>
+      </div>
+      <span id="mode-badge" class="badge">mock</span>
+    </div>
   </header>
 
   <main>
     <section class="card">
-      <h1>Your MRG address</h1>
+      <h1 data-i18n="address.title">Your MRG address</h1>
       <p id="address" class="mono address">—</p>
       <div class="row">
-        <button id="btn-copy" type="button">Copy</button>
-        <a id="link-scan" class="btn ghost" href="#" target="_blank" rel="noopener">Open Scan</a>
+        <button id="btn-copy" type="button" data-i18n="actions.copy">Copy</button>
+        <a id="link-scan" class="btn ghost" href="#" target="_blank" rel="noopener" data-i18n="actions.openScan">Open Scan</a>
       </div>
-      <p class="muted">Mock vault by default. Production uses Solana SPL MRG + MergeOS ledger proofs.</p>
+      <p class="muted" data-i18n="address.help">Mock vault by default. Production uses Solana SPL MRG + MergeOS ledger proofs.</p>
     </section>
 
     <section class="card grid2">
       <div>
-        <h2>Token economy</h2>
+        <h2 data-i18n="token.title">Token economy</h2>
         <dl id="token-dl" class="kv"></dl>
       </div>
       <div>
-        <h2>Ledger tip</h2>
+        <h2 data-i18n="ledger.title">Ledger tip</h2>
         <dl id="ledger-dl" class="kv"></dl>
       </div>
     </section>
 
     <section class="card">
-      <h2>Solana binding</h2>
+      <h2 data-i18n="solana.title">Solana binding</h2>
       <dl id="solana-dl" class="kv"></dl>
     </section>
 
     <section class="card">
       <div class="row between">
-        <h2>Claimable bounties</h2>
-        <button id="btn-refresh" type="button">Refresh live</button>
+        <h2 data-i18n="claimable.title">Claimable bounties</h2>
+        <button id="btn-refresh" type="button" data-i18n="actions.refresh">Refresh live</button>
       </div>
       <ul id="bounty-list" class="list"></ul>
     </section>
 
     <section class="card">
-      <h2>Claim receipt</h2>
+      <h2 data-i18n="receipt.title">Claim receipt</h2>
       <pre id="receipt" class="mono pre">—</pre>
-      <p class="muted">Binds wallet address to ledger tip. Payout still needs admin accept / Solana releasePayout.</p>
+      <p class="muted" data-i18n="receipt.help">Binds wallet address to ledger tip. Payout still needs admin accept / Solana releasePayout.</p>
     </section>
   </main>
 
