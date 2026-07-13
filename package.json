@@ -1,0 +1,28 @@
+{
+  "name": "mrgwallet",
+  "version": "0.1.0",
+  "private": true,
+  "description": "MRGWallet — official MergeOS MRG wallet for Android, Chrome, and Firefox",
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "demo": "node ./scripts/demo.mjs",
+    "build:web": "node ./scripts/build-web.mjs",
+    "build:extensions": "node ./scripts/build-extensions.mjs",
+    "sync:android": "node ./scripts/sync-android-assets.mjs",
+    "build": "npm run build:web && npm run build:extensions && npm run sync:android"
+  },
+  "engines": {
+    "node": ">=18.17.0"
+  },
+  "keywords": [
+    "mergeos",
+    "mrg",
+    "wallet",
+    "solana",
+    "chrome-extension",
+    "firefox-extension",
+    "android"
+  ],
+  "license": "MIT"
+}

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MRGWallet</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="top">
+    <div class="brand">
+      <span class="dot"></span>
+      <strong>MRGWallet</strong>
+    </div>
+    <span id="mode-badge" class="badge">mock</span>
+  </header>
+
+  <main>
+    <section class="card">
+      <h1>Your MRG address</h1>
+      <p id="address" class="mono address">—</p>
+      <div class="row">
+        <button id="btn-copy" type="button">Copy</button>
+        <a id="link-scan" class="btn ghost" href="#" target="_blank" rel="noopener">Open Scan</a>
+      </div>
+      <p class="muted">Mock vault by default. Production uses Solana SPL MRG + MergeOS ledger proofs.</p>
+    </section>
+
+    <section class="card grid2">
+      <div>
+        <h2>Token economy</h2>
+        <dl id="token-dl" class="kv"></dl>
+      </div>
+      <div>
+        <h2>Ledger tip</h2>
+        <dl id="ledger-dl" class="kv"></dl>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Solana binding</h2>
+      <dl id="solana-dl" class="kv"></dl>
+    </section>
+
+    <section class="card">
+      <div class="row between">
+        <h2>Claimable bounties</h2>
+        <button id="btn-refresh" type="button">Refresh live</button>
+      </div>
+      <ul id="bounty-list" class="list"></ul>
+    </section>
+
+    <section class="card">
+      <h2>Claim receipt</h2>
+      <pre id="receipt" class="mono pre">—</pre>
+      <p class="muted">Binds wallet address to ledger tip. Payout still needs admin accept / Solana releasePayout.</p>
+    </section>
+  </main>
+
+  <footer>
+    <a href="https://mergeos.shop" target="_blank" rel="noopener">mergeos.shop</a>
+    ·
+    <a href="https://scan.mergeos.shop" target="_blank" rel="noopener">scan</a>
+    ·
+    <span id="generated">—</span>
+  </footer>
+
+  <script src="mrgwallet-core.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
