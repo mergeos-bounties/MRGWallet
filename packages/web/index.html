@@ -51,9 +51,26 @@
     </section>
 
     <section class="card">
-      <h2>Claim receipt</h2>
+      <h2 id="receipt-title">Claim receipt</h2>
       <pre id="receipt" class="mono pre">—</pre>
       <p class="muted">Binds wallet address to ledger tip. Payout still needs admin accept / Solana releasePayout.</p>
+    </section>
+
+    <section class="card">
+      <h2 id="settings-title">Settings</h2>
+      <label class="field">
+        <span id="worker-label">Worker ID <span class="muted">(github:login)</span></span>
+        <input id="worker-id" type="text" class="mono" placeholder="github:your-username" />
+      </label>
+      <p class="muted">Used in claim receipts to identify the worker. Saved to localStorage.</p>
+      <hr style="border-color:var(--line);margin:0.8rem 0" />
+      <label class="field">
+        <span id="lang-select-label">Language</span>
+        <select id="lang-select" class="mono" style="background:#0a0f1c;border:1px solid var(--line);border-radius:10px;padding:0.6rem 0.75rem;color:var(--text);font-size:0.88rem;outline:none">
+          <option value="en">English</option>
+          <option value="vi">Tiếng Việt</option>
+        </select>
+      </label>
     </section>
   </main>
 
@@ -66,6 +83,7 @@
   </footer>
 
   <script src="mrgwallet-core.js"></script>
+  <script src="vi.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
