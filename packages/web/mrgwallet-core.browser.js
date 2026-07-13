@@ -429,3 +429,99 @@
     fetchLiveWalletBundle,
   };
 })(typeof window !== "undefined" ? window : globalThis);
+
+  function mockSolanaManifest() {
+    return {
+      program: "mergeos_mrg",
+      program_id: DEFAULT_SOLANA_PROGRAM_ID,
+      target_chain: "solana",
+      token_symbol: "MRG",
+    };
+  }
+
+  async function mockWalletSnapshot(workerId = "github:demo") {
+    return buildWalletSnapshot({
+      vault: await createVault({ seed: "mrgwallet:demo", label: "Demo" }),
+      economy: mockEconomy(),
+      proof: mockProof(),
+      market: mockMarket(),
+      solanaManifest: mockSolanaManifest(),
+      workerId,
+    });
+  }
+
+  async function getJson(url) {
+    const res = await fetch(url, { headers: { Accept: "application/json" } });
+    const text = await res.text();
+    let body = null;
+    try {
+      body = text ? JSON.parse(text) : null;
+    } catch {
+      throw new Error(`invalid JSON from ${url}`);
+    }
+    if (!res.ok) throw new Error((body && body.error) || `${res.status} ${res.statusText}`);
+    return body;
+  }
+
+  async function fetchTokenEconomy(base = SHOP_BASE) {
+    return getJson(`${String(base).replace(/\/$/, "")}/api/public/token-economy`);
+  }
+  async function fetchLedgerProof(base = SHOP_BASE) {
+    return getJson(`${String(base).replace(/\/$/, "")}/api/public/ledger/proof`);
+  }
+  async function fetchMarketplace(base = SHOP_BASE, limit = 40) {
+    return getJson(
+      `${String(base).replace(/\/$/, "")}/api/public/marketplace?limit=${encodeURIComponent(limit)}`,
+    );
+  }
+  async function fetchSolanaManifest(base = SHOP_BASE) {
+    try {
+      return await getJson(
+        `${String(base).replace(/\/$/, "")}/contracts/solana/mergeos_mrg.proof-manifest.v1.json`,
+      );
+    } catch {
+      return null;
+    }
+  }
+  async function fetchLiveWalletBundle(base = SHOP_BASE) {
+    const [economy, proof, market, solanaManifest] = await Promise.all([
+      fetchTokenEconomy(base),
+      fetchLedgerProof(base),
+      fetchMarketplace(base),
+      fetchSolanaManifest(base),
+    ]);
+    return { economy, proof, market, solanaManifest, source: "live" };
+  }
+
+  global.MRGWallet = {
+    SHOP_BASE,
+    SCAN_BASE,
+    DEFAULT_SOLANA_PROGRAM_ID,
+    PROTOCOL_VERSION,
+    sha256Hex,
+    base58Encode,
+    deriveAddress,
+    createVault,
+    mrgFromCents,
+    scanAddressUrl,
+    scanTxUrl,
+    ledgerReferenceBytes32,
+    summarizeTokenEconomy,
+    summarizeLedgerProof,
+    summarizeSolana,
+    resolveRewardMrg,
+    discoverClaimableBounties,
+    buildWalletClaimReceipt,
+    buildWalletSnapshot,
+    mockEconomy,
+    mockProof,
+    mockMarket,
+    mockSolanaManifest,
+    mockWalletSnapshot,
+    fetchTokenEconomy,
+    fetchLedgerProof,
+    fetchMarketplace,
+    fetchSolanaManifest,
+    fetchLiveWalletBundle,
+  };
+})(typeof window !== "undefined" ? window : globalThis);
