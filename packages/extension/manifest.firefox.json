@@ -23,7 +23,7 @@
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
   },
-  "permissions": ["storage"],
+  "permissions": ["storage", "alarms"],
   "host_permissions": [
     "https://mergeos.shop/*",
     "https://scan.mergeos.shop/*"
