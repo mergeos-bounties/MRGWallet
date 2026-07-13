@@ -112,3 +112,14 @@ footer {
   padding: 1rem 1rem 1.5rem;
 }
 footer a { color: #a5b4fc; }
+.field { display: flex; flex-direction: column; gap: 0.4rem; }
+.field input {
+  background: #0a0f1c;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 0.6rem 0.75rem;
+  color: var(--text);
+  font-size: 0.88rem;
+  outline: none;
+}
+.field input:focus { border-color: var(--accent); }
