@@ -140,6 +140,7 @@
       tip_hash: tipHash,
       ledger_reference: ledgerReferenceBytes32(tipHash || proof.public_root_hash || proof.root_hash),
       scan_tx: tipHash ? scanTxUrl(tipHash) : null,
+      entries,
     };
   }
 
