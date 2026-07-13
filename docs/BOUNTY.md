@@ -2,10 +2,12 @@
 
 ## Claim
 
-1. Star https://github.com/mergeos-bounties/MRGWallet and https://github.com/mergeos-bounties/mergeos  
-2. Comment on the issue: `I claim this bounty`  
-3. Open a PR to **master** with `Fixes #<n>`  
-4. Include screenshots for UI work (Chrome popup / Android / Firefox)
+1. **Follow** the org https://github.com/mergeos-bounties  
+2. **Star** https://github.com/mergeos-bounties/mergeos  
+3. **Star** https://github.com/mergeos-bounties/mergeos-contracts
+4. Comment on the issue: `I claim this bounty`  
+5. Open a PR to **master** with `Fixes #<n>`  
+6. Include screenshots for UI work (Chrome popup / Android / Firefox)
 
 ## Payout scale
 
