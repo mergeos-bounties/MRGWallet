@@ -7,10 +7,12 @@
   "scripts": {
     "test": "node --test",
     "demo": "node ./scripts/demo.mjs",
+    "serve": "node ./scripts/serve.mjs",
     "build:web": "node ./scripts/build-web.mjs",
     "build:extensions": "node ./scripts/build-extensions.mjs",
     "sync:android": "node ./scripts/sync-android-assets.mjs",
-    "build": "npm run build:web && npm run build:extensions && npm run sync:android"
+    "build": "npm run build:web && npm run build:extensions && npm run sync:android",
+    "package:release": "node ./scripts/package-release.mjs"
   },
   "engines": {
     "node": ">=18.17.0"

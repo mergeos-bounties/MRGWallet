@@ -31,19 +31,18 @@
 cd MRGWallet
 npm test
 npm run demo
-npm run build
+npm run serve
+# open http://127.0.0.1:8787/
 ```
 
-Open the web UI:
-
 ```powershell
-# after npm run build:web
-start dist\web\index.html
+npm run build
+npm run package:release   # zips under dist/release/
 ```
 
 ### Chrome extension
 
-1. `npm run build:extensions`
+1. `npm run build:extensions` (or unpack a release zip)
 2. Chrome → Extensions → Developer mode → **Load unpacked** → `dist/extensions/chrome`
 
 ### Firefox extension
@@ -54,11 +53,24 @@ start dist\web\index.html
 ### Android
 
 ```powershell
-node scripts/sync-android-assets.mjs
+npm run sync:android
 cd android
-# open in Android Studio or:
-# .\gradlew.bat :app:assembleDebug
+# Android Studio → open this folder → Run app
+# or: .\gradlew.bat :app:assembleDebug
 ```
+
+### Release artifacts
+
+GitHub Releases attach:
+
+| Asset | Use |
+| --- | --- |
+| `MRGWallet-chrome-vX.Y.Z.zip` | Load unpacked in Chrome |
+| `MRGWallet-firefox-vX.Y.Z.zip` | Temporary add-on in Firefox |
+| `MRGWallet-web-vX.Y.Z.zip` | Static host / Android assets source |
+| `*.sha256` | Checksums |
+
+Tag `vX.Y.Z` (or run **Release** workflow) builds these automatically.
 
 ---
 

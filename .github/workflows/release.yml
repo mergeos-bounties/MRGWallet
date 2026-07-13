@@ -1,0 +1,62 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag (e.g. v0.1.0)"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Test
+        run: npm test
+
+      - name: Package release zips
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq zip
+          node scripts/package-release.mjs
+
+      - name: Resolve tag
+        id: tag
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "name=${{ inputs.tag }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "name=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${{ steps.tag.outputs.name }}"
+          gh release create "$TAG" \
+            dist/release/*.zip \
+            dist/release/*.sha256 \
+            --title "MRGWallet $TAG" \
+            --notes-file dist/release/RELEASE_NOTES.md \
+            --latest \
+            --verify-tag || \
+          gh release create "$TAG" \
+            dist/release/*.zip \
+            dist/release/*.sha256 \
+            --title "MRGWallet $TAG" \
+            --notes-file dist/release/RELEASE_NOTES.md \
+            --latest
