@@ -16,6 +16,14 @@
   </header>
 
   <main>
+    <section id="config-empty" class="card notice" hidden>
+      <h2 id="config-empty-title">Configure your wallet</h2>
+      <p id="config-empty-message" class="muted">Add your GitHub worker ID before creating claim receipts.</p>
+      <div class="row">
+        <a id="config-empty-cta" class="btn" href="#settings-title">Open Settings</a>
+      </div>
+    </section>
+
     <section class="card">
       <h1>Your MRG address</h1>
       <p id="address" class="mono address">—</p>
@@ -28,23 +36,23 @@
 
     <section class="card grid2">
       <div>
-        <h2>Token economy</h2>
+        <h2 id="token-title">Token economy</h2>
         <dl id="token-dl" class="kv"></dl>
       </div>
       <div>
-        <h2>Ledger tip</h2>
+        <h2 id="ledger-title">Ledger tip</h2>
         <dl id="ledger-dl" class="kv"></dl>
       </div>
     </section>
 
     <section class="card">
-      <h2>Solana binding</h2>
+      <h2 id="solana-title">Solana binding</h2>
       <dl id="solana-dl" class="kv"></dl>
     </section>
 
     <section class="card">
       <div class="row between">
-        <h2>Claimable bounties</h2>
+        <h2 id="bounty-title">Claimable bounties</h2>
         <button id="btn-refresh" type="button">Refresh live</button>
       </div>
       <ul id="bounty-list" class="list"></ul>

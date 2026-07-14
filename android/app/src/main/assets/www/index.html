@@ -16,6 +16,14 @@
   </header>
 
   <main>
+    <section id="config-empty" class="card notice" hidden>
+      <h2 id="config-empty-title">Configure your wallet</h2>
+      <p id="config-empty-message" class="muted">Add your GitHub worker ID before creating claim receipts.</p>
+      <div class="row">
+        <a id="config-empty-cta" class="btn" href="#settings-title">Open Settings</a>
+      </div>
+    </section>
+
     <section class="card">
       <h1>Your MRG address</h1>
       <p id="address" class="mono address">—</p>
@@ -28,32 +36,49 @@
 
     <section class="card grid2">
       <div>
-        <h2>Token economy</h2>
+        <h2 id="token-title">Token economy</h2>
         <dl id="token-dl" class="kv"></dl>
       </div>
       <div>
-        <h2>Ledger tip</h2>
+        <h2 id="ledger-title">Ledger tip</h2>
         <dl id="ledger-dl" class="kv"></dl>
       </div>
     </section>
 
     <section class="card">
-      <h2>Solana binding</h2>
+      <h2 id="solana-title">Solana binding</h2>
       <dl id="solana-dl" class="kv"></dl>
     </section>
 
     <section class="card">
       <div class="row between">
-        <h2>Claimable bounties</h2>
+        <h2 id="bounty-title">Claimable bounties</h2>
         <button id="btn-refresh" type="button">Refresh live</button>
       </div>
       <ul id="bounty-list" class="list"></ul>
     </section>
 
     <section class="card">
-      <h2>Claim receipt</h2>
+      <h2 id="receipt-title">Claim receipt</h2>
       <pre id="receipt" class="mono pre">—</pre>
       <p class="muted">Binds wallet address to ledger tip. Payout still needs admin accept / Solana releasePayout.</p>
+    </section>
+
+    <section class="card">
+      <h2 id="settings-title">Settings</h2>
+      <label class="field">
+        <span id="worker-label">Worker ID <span class="muted">(github:login)</span></span>
+        <input id="worker-id" type="text" class="mono" placeholder="github:your-username" />
+      </label>
+      <p class="muted">Used in claim receipts to identify the worker. Saved to localStorage.</p>
+      <hr style="border-color:var(--line);margin:0.8rem 0" />
+      <label class="field">
+        <span id="lang-select-label">Language</span>
+        <select id="lang-select" class="mono" style="background:#0a0f1c;border:1px solid var(--line);border-radius:10px;padding:0.6rem 0.75rem;color:var(--text);font-size:0.88rem;outline:none">
+          <option value="en">English</option>
+          <option value="vi">Tiếng Việt</option>
+        </select>
+      </label>
     </section>
   </main>
 
@@ -66,6 +91,7 @@
   </footer>
 
   <script src="mrgwallet-core.js"></script>
+  <script src="vi.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

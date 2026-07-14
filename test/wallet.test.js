@@ -5,6 +5,7 @@ import {
   deriveAddress,
   mockWalletSnapshot,
   buildWalletClaimReceipt,
+  getWalletConfigState,
   resolveRewardMrg,
   discoverClaimableBounties,
   mockMarket,
@@ -64,6 +65,19 @@ test("mock wallet snapshot is complete", () => {
   assert.ok(s.solana.program_id);
   assert.ok(s.claimable.length >= 1);
   assert.ok(s.sample_receipt.ready);
+});
+
+test("wallet config state guides users when worker login is missing", () => {
+  const empty = getWalletConfigState("");
+  assert.equal(empty.status, "needs_configuration");
+  assert.equal(empty.ready, false);
+  assert.match(empty.title, /Configure/);
+  assert.match(empty.message, /GitHub worker ID/);
+  assert.match(empty.cta, /Settings/);
+
+  const configured = getWalletConfigState("github:demo");
+  assert.equal(configured.status, "ready");
+  assert.equal(configured.ready, true);
 });
 
 test("ledgerReferenceBytes32 validates 64 hex", () => {

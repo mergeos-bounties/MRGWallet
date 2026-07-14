@@ -46,6 +46,10 @@ main { padding: 1rem; max-width: 720px; margin: 0 auto; display: grid; gap: 0.9r
   border-radius: 14px;
   padding: 1rem 1.1rem;
 }
+.notice {
+  border-color: rgba(45, 212, 191, 0.55);
+  background: linear-gradient(135deg, rgba(45, 212, 191, 0.12), rgba(124, 92, 255, 0.1));
+}
 h1, h2 { margin: 0 0 0.65rem; font-size: 1rem; }
 h1 { font-size: 1.1rem; }
 .mono { font-family: ui-monospace, Consolas, monospace; }
@@ -112,3 +116,14 @@ footer {
   padding: 1rem 1rem 1.5rem;
 }
 footer a { color: #a5b4fc; }
+.field { display: flex; flex-direction: column; gap: 0.4rem; }
+.field input {
+  background: #0a0f1c;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 0.6rem 0.75rem;
+  color: var(--text);
+  font-size: 0.88rem;
+  outline: none;
+}
+.field input:focus { border-color: var(--accent); }
