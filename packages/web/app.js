@@ -34,13 +34,10 @@
     $("link-scan").textContent = t.addr_scan || "Open Scan";
     const addrNote = document.querySelector("section.card .muted");
     if (addrNote && addrNote.textContent.includes("Mock vault")) addrNote.textContent = t.addr_note || "Mock vault by default. Production uses Solana SPL MRG + MergeOS ledger proofs.";
-    const secHeaders = document.querySelectorAll("section.card h2");
-    if (secHeaders.length >= 4) {
-      if (secHeaders[0]) secHeaders[0].textContent = t.token_title || "Token economy";
-      if (secHeaders[1]) secHeaders[1].textContent = t.ledger_title || "Ledger tip";
-      if (secHeaders[2]) secHeaders[2].textContent = t.solana_title || "Solana binding";
-      if (secHeaders[3]) secHeaders[3].textContent = t.bounty_title || "Claimable bounties";
-    }
+    h("token-title", t.token_title || "Token economy");
+    h("ledger-title", t.ledger_title || "Ledger tip");
+    h("solana-title", t.solana_title || "Solana binding");
+    h("bounty-title", t.bounty_title || "Claimable bounties");
     $("btn-refresh").textContent = t.bounty_refresh || "Refresh live";
     $("receipt-title").textContent = t.receipt_title || "Claim receipt";
     const receiptNote = document.querySelector("#receipt").nextElementSibling;
@@ -59,6 +56,7 @@
     const t = L();
     $("mode-badge").textContent = mode === "live" ? (t.badge_live || "live") : (mode === "mock-fallback" ? (t.badge_mock_fallback || "mock-fallback") : (t.badge_mock || "mock"));
     $("mode-badge").classList.toggle("live", mode === "live");
+    renderConfigState(snapshot.config);
     $("address").textContent = snapshot.vault.address;
     $("link-scan").href = snapshot.vault.scan || "https://scan.mergeos.shop";
     kv($("token-dl"), [
@@ -99,6 +97,17 @@
     $("generated").textContent = (t.generated || "Generated") + " " + (snapshot.generated_at || "");
   }
 
+  function renderConfigState(config = {}) {
+    const state = config.ready === false ? config : MRGWallet.getWalletConfigState(config.worker_id || "");
+    const panel = $("config-empty");
+    if (!panel) return;
+    panel.hidden = state.ready;
+    $("config-empty-title").textContent = state.title || "Configure your wallet";
+    $("config-empty-message").textContent =
+      state.message || "Add your GitHub worker ID before creating claim receipts.";
+    $("config-empty-cta").textContent = state.cta || "Open Settings";
+  }
+
   function escapeHtml(s) {
     return String(s)
       .replace(/&/g, "&amp;")
@@ -109,6 +118,7 @@
   async function loadMock() {
     const seed = localStorage.getItem("mrgwallet_seed") || "mrgwallet:local";
     localStorage.setItem("mrgwallet_seed", seed);
+    const workerId = localStorage.getItem("mrgwallet_worker") || "";
     const vault = await MRGWallet.createVault({ seed, label: "Primary" });
     const snap = await MRGWallet.buildWalletSnapshot({
       vault,
@@ -116,7 +126,7 @@
       proof: MRGWallet.mockProof(),
       market: MRGWallet.mockMarket(),
       solanaManifest: MRGWallet.mockSolanaManifest(),
-      workerId: localStorage.getItem("mrgwallet_worker") || "github:local",
+      workerId,
     });
     await render(snap, "mock");
     return snap;
@@ -126,6 +136,7 @@
     try {
       const bundle = await MRGWallet.fetchLiveWalletBundle();
       const seed = localStorage.getItem("mrgwallet_seed") || "mrgwallet:local";
+      const workerId = localStorage.getItem("mrgwallet_worker") || "";
       const vault = await MRGWallet.createVault({ seed, label: "Primary" });
       const snap = await MRGWallet.buildWalletSnapshot({
         vault,
@@ -133,7 +144,7 @@
         proof: bundle.proof,
         market: bundle.market,
         solanaManifest: bundle.solanaManifest,
-        workerId: localStorage.getItem("mrgwallet_worker") || "github:local",
+        workerId,
       });
       await render(snap, "live");
       return snap;

@@ -78,6 +78,28 @@ export function scanTxUrl(hash) {
   return h ? `${SCAN_BASE}/tx/${encodeURIComponent(h)}` : null;
 }
 
+export function getWalletConfigState(workerId = "") {
+  const id = String(workerId || "").trim();
+  if (!id) {
+    return {
+      status: "needs_configuration",
+      ready: false,
+      title: "Configure your wallet",
+      message: "Add your GitHub worker ID before creating claim receipts.",
+      cta: "Open Settings",
+      worker_id: null,
+    };
+  }
+  return {
+    status: "ready",
+    ready: true,
+    title: "Wallet configured",
+    message: "Claim receipts will include your GitHub worker ID.",
+    cta: "Edit Settings",
+    worker_id: id,
+  };
+}
+
 export function ledgerReferenceBytes32(hexOrObj = {}) {
   const hex = String(
     (typeof hexOrObj === "string" ? hexOrObj : null) ||
@@ -234,6 +256,7 @@ export function buildWalletSnapshot({
   const ledger = summarizeLedgerProof(proof);
   const solana = summarizeSolana(solanaManifest);
   const bounties = discoverClaimableBounties(market, 10);
+  const config = getWalletConfigState(workerId);
   const receipt = bounties[0]
     ? buildWalletClaimReceipt({ vault: v, bounty: bounties[0], proof: ledger, solana, workerId })
     : null;
@@ -251,6 +274,7 @@ export function buildWalletSnapshot({
     token,
     ledger,
     solana,
+    config,
     claimable: bounties,
     sample_receipt: receipt,
     explore: {
