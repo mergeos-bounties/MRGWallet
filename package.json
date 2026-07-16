@@ -11,6 +11,7 @@
     "build:web": "node ./scripts/build-web.mjs",
     "build:extensions": "node ./scripts/build-extensions.mjs",
     "sync:android": "node ./scripts/sync-android-assets.mjs",
+    "validate:manifests": "node ./scripts/validate-extension-manifests.mjs",
     "build": "npm run build:web && npm run build:extensions && npm run sync:android",
     "package:release": "node ./scripts/package-release.mjs"
   },

@@ -48,7 +48,16 @@ npm run package:release   # zips under dist/release/
 ### Firefox extension
 
 1. `npm run build:extensions`
-2. `about:debugging` → This Firefox → **Load Temporary Add-on** → `dist/extensions/firefox/manifest.json`
+2. Open Firefox and go to `about:debugging#/runtime/this-firefox`
+3. Click **Load Temporary Add-on...**
+4. Select `dist/extensions/firefox/manifest.json`
+5. Confirm the temporary add-on appears as **MRGWallet** and opens `web/index.html`
+
+Manifest safety check:
+
+```powershell
+npm run validate:manifests
+```
 
 ### Android
 
@@ -105,6 +114,7 @@ owner/admin accept  →  optional Solana releasePayout
 | `npm run demo` | Mock snapshot smoke |
 | `npm run build:web` | Browser bundle + UI |
 | `npm run build:extensions` | Chrome + Firefox packages |
+| `npm run validate:manifests` | Check Chrome/Firefox manifest keys |
 | `node scripts/sync-android-assets.mjs` | Copy web into Android assets |
 
 ---
