@@ -12,7 +12,10 @@ import {
   mockProof,
   mockSolanaManifest,
   summarizeLedgerProof,
+  summarizeSolana,
   ledgerReferenceBytes32,
+  solanaAddressFromEntryHash,
+  solanaExplorerAddressUrl,
 } from "../packages/core/wallet.js";
 
 test("createVault yields stable mock address", () => {
@@ -56,6 +59,27 @@ test("claim receipt binds address to ledger tip", () => {
   assert.ok(receipt.solana.program_id);
 });
 
+test("solana entry hash link-out is derived from bytes32 ledger reference", () => {
+  const entryHash = "ab".repeat(32);
+  const address = solanaAddressFromEntryHash(entryHash);
+  assert.ok(address);
+  assert.match(solanaExplorerAddressUrl(address), /^https:\/\/explorer\.solana\.com\/address\//);
+
+  const solana = summarizeSolana(mockSolanaManifest(), { ledger_reference: entryHash });
+  assert.equal(solana.entry_hash, entryHash);
+  assert.equal(solana.entry_address, address);
+  assert.match(solana.explorer_url, /^https:\/\/explorer\.solana\.com\/address\//);
+});
+
+test("solana entry hash link-out is safe when missing", () => {
+  assert.equal(solanaAddressFromEntryHash("not-a-bytes32"), null);
+
+  const solana = summarizeSolana(null, {});
+  assert.equal(solana.entry_hash, null);
+  assert.equal(solana.entry_address, null);
+  assert.equal(solana.explorer_url, null);
+});
+
 test("mock wallet snapshot is complete", () => {
   const s = mockWalletSnapshot();
   assert.equal(s.kind, "wallet_snapshot");
@@ -63,6 +87,7 @@ test("mock wallet snapshot is complete", () => {
   assert.ok(s.token.minted_cents > 0);
   assert.ok(s.ledger.tip_hash);
   assert.ok(s.solana.program_id);
+  assert.ok(s.solana.explorer_url);
   assert.ok(s.claimable.length >= 1);
   assert.ok(s.sample_receipt.ready);
 });

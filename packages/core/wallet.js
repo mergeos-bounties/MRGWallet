@@ -78,6 +78,18 @@ export function scanTxUrl(hash) {
   return h ? `${SCAN_BASE}/tx/${encodeURIComponent(h)}` : null;
 }
 
+export function solanaAddressFromEntryHash(entryHash = "") {
+  const ref = ledgerReferenceBytes32(entryHash);
+  return ref ? base58Encode(Buffer.from(ref, "hex")) : null;
+}
+
+export function solanaExplorerAddressUrl(address = "", chain = "solana") {
+  const a = String(address || "").trim();
+  if (!a) return null;
+  const cluster = String(chain || "").toLowerCase().includes("devnet") ? "?cluster=devnet" : "";
+  return `https://explorer.solana.com/address/${encodeURIComponent(a)}${cluster}`;
+}
+
 export function getWalletConfigState(workerId = "") {
   const id = String(workerId || "").trim();
   if (!id) {
@@ -142,8 +154,13 @@ export function summarizeLedgerProof(proof = {}) {
   };
 }
 
-export function summarizeSolana(manifest = null) {
+export function summarizeSolana(manifest = null, ledger = null) {
   const m = manifest || {};
+  const entryHash =
+    (ledger && (ledger.ledger_reference || ledger.tip_hash || ledger.public_root_hash || ledger.root_hash)) ||
+    "";
+  const hasBinding = Boolean(manifest && m.program_id);
+  const entryAddress = hasBinding ? solanaAddressFromEntryHash(entryHash) : null;
   return {
     program: m.program || "mergeos_mrg",
     program_id: m.program_id || DEFAULT_SOLANA_PROGRAM_ID,
@@ -154,6 +171,9 @@ export function summarizeSolana(manifest = null) {
     public_manifest_url:
       m.public_manifest_url || `${SHOP_BASE}/contracts/solana/mergeos_mrg.proof-manifest.v1.json`,
     release_instruction: "releasePayout",
+    entry_hash: entryHash || null,
+    entry_address: entryAddress,
+    explorer_url: entryAddress ? solanaExplorerAddressUrl(entryAddress, m.target_chain) : null,
   };
 }
 
@@ -254,7 +274,7 @@ export function buildWalletSnapshot({
   const v = vault || createVault();
   const token = summarizeTokenEconomy(economy);
   const ledger = summarizeLedgerProof(proof);
-  const solana = summarizeSolana(solanaManifest);
+  const solana = summarizeSolana(solanaManifest, ledger);
   const bounties = discoverClaimableBounties(market, 10);
   const config = getWalletConfigState(workerId);
   const receipt = bounties[0]

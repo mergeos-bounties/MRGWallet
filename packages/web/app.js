@@ -21,6 +21,11 @@
     return s.length <= n * 2 ? s : `${s.slice(0, n)}…${s.slice(-6)}`;
   }
 
+  function externalLink(url, label) {
+    if (!url) return "—";
+    return `<a href="${escapeHtml(url)}" target="_blank" rel="noopener">${escapeHtml(label)}</a>`;
+  }
+
   function applyLang() {
     const t = L();
     document.title = t.brand || "MRGWallet";
@@ -80,6 +85,12 @@
       [t.chain || "Chain", snapshot.solana.target_chain],
       [t.status || "Status", snapshot.solana.status],
       [t.release_ix || "Release ix", snapshot.solana.release_instruction],
+      [t.entry_hash || "Entry hash", short(snapshot.solana.entry_hash, 10)],
+      [t.entry_address || "Entry address", short(snapshot.solana.entry_address, 10)],
+      [
+        t.solana_explorer || "Explorer",
+        externalLink(snapshot.solana.explorer_url, t.open_solana_explorer || "Open in Solana Explorer"),
+      ],
     ]);
     const list = $("bounty-list");
     list.innerHTML = "";
