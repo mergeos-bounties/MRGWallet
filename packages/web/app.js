@@ -37,6 +37,13 @@
     h("token-title", t.token_title || "Token economy");
     h("ledger-title", t.ledger_title || "Ledger tip");
     h("solana-title", t.solana_title || "Solana binding");
+    h("earnings-title", t.earnings_title || "Share earnings");
+    const earningsNote = $("earnings-note");
+    if (earningsNote) {
+      earningsNote.textContent =
+        t.earnings_note ||
+        "Offline mock summary. Live mode can hydrate this from MRGMinner share earnings later.";
+    }
     h("bounty-title", t.bounty_title || "Claimable bounties");
     $("btn-refresh").textContent = t.bounty_refresh || "Refresh live";
     $("receipt-title").textContent = t.receipt_title || "Claim receipt";
@@ -80,6 +87,15 @@
       [t.chain || "Chain", snapshot.solana.target_chain],
       [t.status || "Status", snapshot.solana.status],
       [t.release_ix || "Release ix", snapshot.solana.release_instruction],
+    ]);
+    kv($("earnings-dl"), [
+      [t.earnings_source || "Source", snapshot.share_earnings.source],
+      [t.earnings_worker || "Worker", snapshot.share_earnings.worker_id || "—"],
+      [t.earnings_shares || "Active shares", snapshot.share_earnings.active_shares],
+      [t.earnings_pending || "Pending", `${snapshot.share_earnings.pending_mrg} MRG`],
+      [t.earnings_paid || "Paid", `${snapshot.share_earnings.paid_mrg} MRG`],
+      [t.earnings_lifetime || "Lifetime", `${snapshot.share_earnings.lifetime_mrg} MRG`],
+      [t.earnings_status || "Status", snapshot.share_earnings.payout_status],
     ]);
     const list = $("bounty-list");
     list.innerHTML = "";
