@@ -31,6 +31,8 @@ test("browser core exposes MRGWallet and builds mock snapshot", async () => {
   assert.ok(snap.vault.address.length >= 32);
   assert.ok(snap.sample_receipt.ready);
   assert.ok(snap.solana.program_id);
+  assert.ok(snap.solana.entry_address);
+  assert.match(snap.solana.explorer_url, /^https:\/\/explorer\.solana\.com\/address\//);
 });
 
 test("built dist web core matches browser source after build-web", () => {

@@ -79,6 +79,20 @@
     return h ? `${SCAN_BASE}/tx/${encodeURIComponent(h)}` : null;
   }
 
+  function solanaAddressFromEntryHash(entryHash = "") {
+    const ref = ledgerReferenceBytes32(entryHash);
+    if (!ref) return null;
+    const bytes = new Uint8Array(ref.match(/.{1,2}/g).map((x) => parseInt(x, 16)));
+    return base58Encode(bytes);
+  }
+
+  function solanaExplorerAddressUrl(address = "", chain = "solana") {
+    const a = String(address || "").trim();
+    if (!a) return null;
+    const cluster = String(chain || "").toLowerCase().includes("devnet") ? "?cluster=devnet" : "";
+    return `https://explorer.solana.com/address/${encodeURIComponent(a)}${cluster}`;
+  }
+
   function getWalletConfigState(workerId = "") {
     const id = String(workerId || "").trim();
     if (!id) {
@@ -143,8 +157,13 @@
     };
   }
 
-  function summarizeSolana(manifest = null) {
+  function summarizeSolana(manifest = null, ledger = null) {
     const m = manifest || {};
+    const entryHash =
+      (ledger && (ledger.ledger_reference || ledger.tip_hash || ledger.public_root_hash || ledger.root_hash)) ||
+      "";
+    const hasBinding = Boolean(manifest && m.program_id);
+    const entryAddress = hasBinding ? solanaAddressFromEntryHash(entryHash) : null;
     return {
       program: m.program || "mergeos_mrg",
       program_id: m.program_id || DEFAULT_SOLANA_PROGRAM_ID,
@@ -155,6 +174,9 @@
       public_manifest_url:
         m.public_manifest_url || `${SHOP_BASE}/contracts/solana/mergeos_mrg.proof-manifest.v1.json`,
       release_instruction: "releasePayout",
+      entry_hash: entryHash || null,
+      entry_address: entryAddress,
+      explorer_url: entryAddress ? solanaExplorerAddressUrl(entryAddress, m.target_chain) : null,
     };
   }
 
@@ -248,7 +270,7 @@
     const v = vault || (await createVault());
     const token = summarizeTokenEconomy(economy);
     const ledger = summarizeLedgerProof(proof);
-    const solana = summarizeSolana(solanaManifest);
+    const solana = summarizeSolana(solanaManifest, ledger);
     const bounties = discoverClaimableBounties(market, 10);
     const config = getWalletConfigState(workerId);
     const receipt = bounties[0]
@@ -408,6 +430,8 @@
     mrgFromCents,
     scanAddressUrl,
     scanTxUrl,
+    solanaAddressFromEntryHash,
+    solanaExplorerAddressUrl,
     getWalletConfigState,
     ledgerReferenceBytes32,
     summarizeTokenEconomy,
