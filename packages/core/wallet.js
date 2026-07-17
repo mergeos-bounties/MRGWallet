@@ -359,3 +359,110 @@ export function mockWalletSnapshot(workerId = "github:demo") {
     workerId,
   });
 }
+
+/**
+ * Multi-wallet profile manager — supports switching between worker identities.
+ */
+
+const PROFILES_STORAGE_KEY = "mrgwallet_profiles";
+const ACTIVE_PROFILE_KEY = "mrgwallet_active_profile";
+
+export function generateProfileId() {
+  return `profile_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+}
+
+export function createWalletProfile({ seed, label = "Primary", workerId = "" } = {}) {
+  const profileId = generateProfileId();
+  const vault = createVault({ seed, label });
+  return {
+    id: profileId,
+    label,
+    seed,
+    worker_id: workerId,
+    address: vault.address,
+    created_at: new Date().toISOString(),
+  };
+}
+
+export function getProfilesFromStorage(storage = localStorage) {
+  try {
+    const raw = storage.getItem(PROFILES_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+export function saveProfilesToStorage(profiles, storage = localStorage) {
+  storage.setItem(PROFILES_STORAGE_KEY, JSON.stringify(profiles));
+}
+
+export function getActiveProfileId(storage = localStorage) {
+  return storage.getItem(ACTIVE_PROFILE_KEY) || null;
+}
+
+export function setActiveProfileId(profileId, storage = localStorage) {
+  storage.setItem(ACTIVE_PROFILE_KEY, profileId);
+}
+
+export function getActiveProfile(storage = localStorage) {
+  const activeId = getActiveProfileId(storage);
+  const profiles = getProfilesFromStorage(storage);
+  if (!activeId) return profiles[0] || null;
+  return profiles.find((p) => p.id === activeId) || profiles[0] || null;
+}
+
+export function addProfile({ seed, label = "Primary", workerId = "" } = {}, storage = localStorage) {
+  const profiles = getProfilesFromStorage(storage);
+  const profile = createWalletProfile({ seed, label, workerId });
+  profiles.push(profile);
+  saveProfilesToStorage(profiles, storage);
+  if (profiles.length === 1) {
+    setActiveProfileId(profile.id, storage);
+  }
+  return profile;
+}
+
+export function removeProfile(profileId, storage = localStorage) {
+  const profiles = getProfilesFromStorage(storage);
+  const filtered = profiles.filter((p) => p.id !== profileId);
+  saveProfilesToStorage(filtered, storage);
+  const activeId = getActiveProfileId(storage);
+  if (activeId === profileId) {
+    setActiveProfileId(filtered[0]?.id || null, storage);
+  }
+  return filtered;
+}
+
+export function updateProfile(profileId, updates, storage = localStorage) {
+  const profiles = getProfilesFromStorage(storage);
+  const idx = profiles.findIndex((p) => p.id === profileId);
+  if (idx === -1) return null;
+  profiles[idx] = { ...profiles[idx], ...updates, id: profileId };
+  saveProfilesToStorage(profiles, storage);
+  return profiles[idx];
+}
+
+export function switchToProfile(profileId, storage = localStorage) {
+  const profiles = getProfilesFromStorage(storage);
+  const exists = profiles.some((p) => p.id === profileId);
+  if (!exists) return false;
+  setActiveProfileId(profileId, storage);
+  return true;
+}
+
+export function getProfileCount(storage = localStorage) {
+  return getProfilesFromStorage(storage).length;
+}
+
+export function buildProfileSnapshot(profile, { economy = {}, proof = {}, market = {}, solanaManifest = null } = {}) {
+  const vault = createVault({ seed: profile.seed, label: profile.label });
+  return buildWalletSnapshot({
+    vault,
+    economy,
+    proof,
+    market,
+    solanaManifest,
+    workerId: profile.worker_id,
+  });
+}
