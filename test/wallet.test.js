@@ -11,8 +11,19 @@ import {
   mockMarket,
   mockProof,
   mockSolanaManifest,
+  mockEconomy,
   summarizeLedgerProof,
   ledgerReferenceBytes32,
+  generateProfileId,
+  createWalletProfile,
+  addProfile,
+  removeProfile,
+  updateProfile,
+  switchToProfile,
+  getActiveProfile,
+  getProfilesFromStorage,
+  getProfileCount,
+  buildProfileSnapshot,
 } from "../packages/core/wallet.js";
 
 test("createVault yields stable mock address", () => {
@@ -84,4 +95,124 @@ test("ledgerReferenceBytes32 validates 64 hex", () => {
   const h = "ab".repeat(32);
   assert.equal(ledgerReferenceBytes32(h), h);
   assert.equal(ledgerReferenceBytes32("nope"), null);
+});
+
+// --- Multi-wallet profile tests ---
+
+class MockStorage {
+  constructor() {
+    this.data = {};
+  }
+  getItem(key) {
+    return this.data[key] || null;
+  }
+  setItem(key, value) {
+    this.data[key] = String(value);
+  }
+  removeItem(key) {
+    delete this.data[key];
+  }
+}
+
+test("generateProfileId returns unique ids", () => {
+  const a = generateProfileId();
+  const b = generateProfileId();
+  assert.ok(a.startsWith("profile_"));
+  assert.notEqual(a, b);
+});
+
+test("createWalletProfile creates profile with address", () => {
+  const p = createWalletProfile({ seed: "test-seed", label: "Work", workerId: "github:test" });
+  assert.equal(p.label, "Work");
+  assert.equal(p.seed, "test-seed");
+  assert.equal(p.worker_id, "github:test");
+  assert.ok(p.address);
+  assert.ok(p.id.startsWith("profile_"));
+  assert.ok(p.created_at);
+});
+
+test("addProfile stores and returns profile", () => {
+  const storage = new MockStorage();
+  const p = addProfile({ seed: "s1", label: "Profile 1" }, storage);
+  assert.equal(getProfileCount(storage), 1);
+  assert.equal(getActiveProfile(storage).id, p.id);
+});
+
+test("addProfile sets first profile as active", () => {
+  const storage = new MockStorage();
+  const p1 = addProfile({ seed: "s1" }, storage);
+  const p2 = addProfile({ seed: "s2" }, storage);
+  assert.equal(getActiveProfile(storage).id, p1.id);
+  assert.equal(getProfileCount(storage), 2);
+});
+
+test("switchToProfile changes active profile", () => {
+  const storage = new MockStorage();
+  const p1 = addProfile({ seed: "s1" }, storage);
+  const p2 = addProfile({ seed: "s2" }, storage);
+  assert.equal(getActiveProfile(storage).id, p1.id);
+  switchToProfile(p2.id, storage);
+  assert.equal(getActiveProfile(storage).id, p2.id);
+});
+
+test("switchToProfile returns false for invalid id", () => {
+  const storage = new MockStorage();
+  addProfile({ seed: "s1" }, storage);
+  assert.equal(switchToProfile("invalid", storage), false);
+});
+
+test("removeProfile removes and updates active", () => {
+  const storage = new MockStorage();
+  const p1 = addProfile({ seed: "s1" }, storage);
+  const p2 = addProfile({ seed: "s2" }, storage);
+  removeProfile(p1.id, storage);
+  assert.equal(getProfileCount(storage), 1);
+  assert.equal(getActiveProfile(storage).id, p2.id);
+});
+
+test("removeProfile sets null active when all removed", () => {
+  const storage = new MockStorage();
+  const p1 = addProfile({ seed: "s1" }, storage);
+  removeProfile(p1.id, storage);
+  assert.equal(getProfileCount(storage), 0);
+  assert.equal(getActiveProfile(storage), null);
+});
+
+test("updateProfile updates fields", () => {
+  const storage = new MockStorage();
+  const p = addProfile({ seed: "s1", label: "Old" }, storage);
+  const updated = updateProfile(p.id, { label: "New", worker_id: "github:new" }, storage);
+  assert.equal(updated.label, "New");
+  assert.equal(updated.worker_id, "github:new");
+  assert.equal(updated.id, p.id);
+});
+
+test("updateProfile returns null for invalid id", () => {
+  const storage = new MockStorage();
+  assert.equal(updateProfile("invalid", { label: "X" }, storage), null);
+});
+
+test("buildProfileSnapshot produces valid snapshot", () => {
+  const storage = new MockStorage();
+  const p = addProfile({ seed: "snap-test", label: "Snap", workerId: "github:snap" }, storage);
+  const snap = buildProfileSnapshot(p, {
+    economy: mockEconomy(),
+    proof: mockProof(),
+    market: mockMarket(),
+    solanaManifest: mockSolanaManifest(),
+  });
+  assert.equal(snap.kind, "wallet_snapshot");
+  assert.equal(snap.vault.label, "Snap");
+  assert.equal(snap.config.worker_id, "github:snap");
+  assert.ok(snap.vault.address);
+});
+
+test("profiles persist across storage reads", () => {
+  const storage = new MockStorage();
+  addProfile({ seed: "s1" }, storage);
+  addProfile({ seed: "s2" }, storage);
+  const profiles = getProfilesFromStorage(storage);
+  assert.equal(profiles.length, 2);
+  assert.equal(profiles[0].seed, "s1");
+  assert.equal(profiles[1].seed, "s2");
 });
