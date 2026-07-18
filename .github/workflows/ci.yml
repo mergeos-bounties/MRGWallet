@@ -17,6 +17,8 @@ jobs:
         run: npm test
       - name: Demo
         run: npm run demo
+      - name: Validate extension manifests
+        run: npm run validate:manifests
       - name: Build web + extensions + android assets
         run: npm run build
       - name: Package release zips
