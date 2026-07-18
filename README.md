@@ -50,6 +50,8 @@ npm run package:release   # zips under dist/release/
 1. `npm run build:extensions`
 2. `about:debugging` → This Firefox → **Load Temporary Add-on** → `dist/extensions/firefox/manifest.json`
 
+See [Firefox install walkthrough](docs/FIREFOX_INSTALL.md) for details, troubleshooting, and Android Nightly setup.
+
 ### Android
 
 ```powershell

@@ -17,6 +17,20 @@ jobs:
         run: npm test
       - name: Demo
         run: npm run demo
+      - name: Validate extension manifests
+        run: |
+          for f in packages/extension/manifest.chrome.json packages/extension/manifest.firefox.json; do
+            echo "Validating $f"
+            name=$(node -e "console.log(JSON.parse(require('fs').readFileSync('$f','utf8')).name)")
+            ver=$(node -e "console.log(JSON.parse(require('fs').readFileSync('$f','utf8')).version)")
+            echo "  name=$name version=$ver"
+            test "$name" = "MRGWallet" || { echo "FAIL: name mismatch in $f"; exit 1; }
+            test "$(node -e "console.log(JSON.parse(require('fs').readFileSync('$f','utf8')).manifest_version)")" = "3" || { echo "FAIL: must be MV3 in $f"; exit 1; }
+            perms=$(node -e "console.log(JSON.parse(require('fs').readFileSync('$f','utf8')).permissions.join(','))")
+            echo "  permissions=$perms"
+            test "$(echo "$perms" | grep -o storage)" = "storage" || { echo "FAIL: storage permission missing in $f"; exit 1; }
+            echo "  OK"
+          done
       - name: Build web + extensions + android assets
         run: npm run build
       - name: Package release zips
