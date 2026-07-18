@@ -243,19 +243,62 @@ export function buildWalletClaimReceipt({
   };
 }
 
+/**
+ * Export vault as a JSON-safe object — public metadata only, NO seed/private key.
+ */
+export function exportVault(address, label, fingerprint) {
+  if (!address || typeof address !== "string") throw new Error("exportVault: address is required");
+  return {
+    protocol_version: PROTOCOL_VERSION,
+    kind: "vault_export",
+    address,
+    label: label || "",
+    secret_fingerprint: fingerprint || "",
+    network: "solana",
+    token_symbol: "MRG",
+    mock: true,
+    exported_at: new Date().toISOString(),
+  };
+}
+
+/**
+ * Import a vault export JSON string — validates structure, returns parsed data.
+ * Does NOT import or restore any seed/private key material.
+ */
+export function importVault(jsonString) {
+  if (!jsonString || typeof jsonString !== "string") {
+    throw new Error("importVault: expected a JSON string");
+  }
+  let data;
+  try {
+    data = JSON.parse(jsonString);
+  } catch {
+    throw new Error("importVault: invalid JSON");
+  }
+  if (!data || typeof data !== "object") throw new Error("importVault: exported data must be an object");
+  if (data.kind !== "vault_export") throw new Error("importVault: kind must be 'vault_export'");
+  if (!data.protocol_version) throw new Error("importVault: missing protocol_version");
+  if (!data.address || typeof data.address !== "string") throw new Error("importVault: missing or invalid address");
+  if (!data.exported_at) throw new Error("importVault: missing exported_at");
+  return data;
+}
+
 export function buildWalletSnapshot({
   vault = null,
   economy = {},
   proof = {},
   market = {},
   solanaManifest = null,
+  bandwidthShare = null,
   workerId = "",
 } = {}) {
   const v = vault || createVault();
   const token = summarizeTokenEconomy(economy);
   const ledger = summarizeLedgerProof(proof);
+  ledger.entries = Array.isArray(proof.entries) ? proof.entries : [];
   const solana = summarizeSolana(solanaManifest);
   const bounties = discoverClaimableBounties(market, 10);
+  const bw = bandwidthShare || mockBandwidthShare();
   const config = getWalletConfigState(workerId);
   const receipt = bounties[0]
     ? buildWalletClaimReceipt({ vault: v, bounty: bounties[0], proof: ledger, solana, workerId })
@@ -274,6 +317,7 @@ export function buildWalletSnapshot({
     token,
     ledger,
     solana,
+    bandwidth_share: bw,
     config,
     claimable: bounties,
     sample_receipt: receipt,
@@ -291,7 +335,7 @@ export function buildWalletSnapshot({
 export function mockEconomy() {
   return {
     token_symbol: "MRG",
-    stats: { ledger_entry_count: 40 },
+    stats: { ledger_entry_count: 16 },
     totals: {
       minted_cents: 500000,
       remaining_reserve_cents: 447500,
@@ -300,23 +344,57 @@ export function mockEconomy() {
   };
 }
 
+const _MOCK_HASHES = [
+  "6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b",
+  "d4735e3a265e16eee03f59718b9b5d03019c07d8b6c51f90da3a666eec13ab35",
+  "4e07408562bedb8b60ce05c1decfe3ad16b72230967de01f640b7e4729b49fce",
+  "4b227777d4dd1fc61c6f884f48641d02b4d121d3fd328cb08b5531fcacdabf8a",
+  "ef2d127de37b942baad06145e54b0c619a1f22327b2ebbcfbec78f5564afe39d",
+  "e7f6c011776e8db7cd330b54174fd76f7d0216b612387a5ffcfb81e6f0919683",
+  "7902699be42c8a8e46fbbb4501726517e86b22c56a189f7625a6da49081b2451",
+  "2c624232cdd221771294dfbb310aca000a0df6ac8b66b696d90ef06fdefb64a3",
+  "19581e27de7ced00ff1ce50b2047e7a567c76b1cbaebabe5ef03f7c3017bb5b7",
+  "4a44dc15364204a80fe80e9039455cc1608281820fe2b24f1e5233ade6af1dd5",
+  "4fc82b26aecb47d2868c4efbe3581732a3e7cbcc6c2efb32062c08170a05eeb8",
+  "6b51d431df5d7f141cbececcf79edf3dd861c3b4069f0b11661a3eefacbba918",
+  "3fdba35f04dc8c462986c992bcf875546257113072a909c162f7e470e581e278",
+  "8527a891e224136950ff32ca212b45bc93f69fbb801c3b1ebedac52775f99e61",
+  "e629fa6598d732768f7c726b4b621285f9c3b85303900aa912017db7617d8bdb",
+  "b17ef6d19c7a5b1ee83b907c595526dcb1eb06db8227d650d5dda0a9f4ce8cd9",
+];
+
+export function mockLedgerEntries() {
+  return [
+    { sequence: 1,  date: "2026-01-05T10:30:00Z",  bounty_type: "bug",     title: "Fix login crash",        amount_cents: 2500,  entry_hash: _MOCK_HASHES[0] },
+    { sequence: 2,  date: "2026-01-18T14:15:00Z",  bounty_type: "feature", title: "Dark mode toggle",        amount_cents: 5000,  entry_hash: _MOCK_HASHES[1] },
+    { sequence: 3,  date: "2026-02-02T09:00:00Z",  bounty_type: "qa",      title: "E2E test suite",          amount_cents: 1500,  entry_hash: _MOCK_HASHES[2] },
+    { sequence: 4,  date: "2026-02-14T11:45:00Z",  bounty_type: "docs",    title: "API reference docs",      amount_cents: 1000,  entry_hash: _MOCK_HASHES[3] },
+    { sequence: 5,  date: "2026-02-28T16:30:00Z",  bounty_type: "payment", title: "Milestone payout Q1",     amount_cents: 10000, entry_hash: _MOCK_HASHES[4] },
+    { sequence: 6,  date: "2026-03-10T08:20:00Z",  bounty_type: "bug",     title: "Memory leak fix",         amount_cents: 3000,  entry_hash: _MOCK_HASHES[5] },
+    { sequence: 7,  date: "2026-03-22T13:10:00Z",  bounty_type: "feature", title: "Export CSV feature",      amount_cents: 4500,  entry_hash: _MOCK_HASHES[6] },
+    { sequence: 8,  date: "2026-04-05T17:00:00Z",  bounty_type: "qa",      title: "Regression tests",        amount_cents: 2000,  entry_hash: _MOCK_HASHES[7] },
+    { sequence: 9,  date: "2026-04-19T12:30:00Z",  bounty_type: "docs",    title: "User guide update",       amount_cents: 800,   entry_hash: _MOCK_HASHES[8] },
+    { sequence: 10, date: "2026-05-01T09:45:00Z",  bounty_type: "payment", title: "Milestone payout Q2",     amount_cents: 12000, entry_hash: _MOCK_HASHES[9] },
+    { sequence: 11, date: "2026-05-15T15:20:00Z",  bounty_type: "bug",     title: "Auth token refresh bug",  amount_cents: 3500,  entry_hash: _MOCK_HASHES[10] },
+    { sequence: 12, date: "2026-06-01T11:00:00Z",  bounty_type: "feature", title: "Webhook integration",      amount_cents: 6000,  entry_hash: _MOCK_HASHES[11] },
+    { sequence: 13, date: "2026-06-12T10:30:00Z",  bounty_type: "qa",      title: "Performance benchmarks",  amount_cents: 1800,  entry_hash: _MOCK_HASHES[12] },
+    { sequence: 14, date: "2026-06-25T14:00:00Z",  bounty_type: "docs",    title: "Contributing guide",      amount_cents: 700,   entry_hash: _MOCK_HASHES[13] },
+    { sequence: 15, date: "2026-07-04T08:00:00Z",  bounty_type: "payment", title: "Milestone payout Q3",     amount_cents: 15000, entry_hash: _MOCK_HASHES[14] },
+    { sequence: 16, date: "2026-07-10T16:45:00Z",  bounty_type: "bug",     title: "CSS layout issue",        amount_cents: 1200,  entry_hash: _MOCK_HASHES[15] },
+  ];
+}
+
 export function mockProof() {
+  const entries = mockLedgerEntries();
   const tip = "a".repeat(64);
   return {
     valid: true,
-    entry_count: 40,
-    verified_count: 40,
+    entry_count: entries.length,
+    verified_count: entries.length,
     broken_count: 0,
     root_hash: tip,
     public_root_hash: "b".repeat(64),
-    entries: [
-      {
-        sequence: 40,
-        type: "ledger_manual_credit",
-        entry_hash: tip,
-        amount_cents: 25,
-      },
-    ],
+    entries,
   };
 }
 
@@ -346,6 +424,15 @@ export function mockSolanaManifest() {
     program_id: DEFAULT_SOLANA_PROGRAM_ID,
     target_chain: "solana",
     token_symbol: "MRG",
+  };
+}
+
+export function mockBandwidthShare() {
+  return {
+    total_bytes_shared: 2457600000,
+    sessions_count: 12,
+    mrg_earned: 0,
+    status: "offline",
   };
 }
 

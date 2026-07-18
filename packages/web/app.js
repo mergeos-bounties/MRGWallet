@@ -37,6 +37,8 @@
     h("token-title", t.token_title || "Token economy");
     h("ledger-title", t.ledger_title || "Ledger tip");
     h("solana-title", t.solana_title || "Solana binding");
+    const bwTitle = $("bw-title");
+    if (bwTitle) bwTitle.textContent = t.bw_title || "Bandwidth Share";
     h("bounty-title", t.bounty_title || "Claimable bounties");
     $("btn-refresh").textContent = t.bounty_refresh || "Refresh live";
     $("receipt-title").textContent = t.receipt_title || "Claim receipt";
@@ -81,6 +83,18 @@
       [t.status || "Status", snapshot.solana.status],
       [t.release_ix || "Release ix", snapshot.solana.release_instruction],
     ]);
+    const bw = snapshot.bandwidth_share;
+    if (bw) {
+      const statusEl = $("bw-status");
+      const online = bw.status === "online";
+      statusEl.textContent = online ? (t.bw_online || "Online") : (t.bw_offline || "Offline");
+      statusEl.className = "status " + (online ? "online" : "offline");
+      kv($("bw-dl"), [
+        [t.bw_bytes || "Bytes shared", formatBytes(bw.total_bytes_shared)],
+        [t.bw_sessions || "Sessions", String(bw.sessions_count)],
+        [t.bw_earned || "MRG earned", bw.mrg_earned.toFixed(1) + " MRG"],
+      ]);
+    }
     const list = $("bounty-list");
     list.innerHTML = "";
     for (const b of snapshot.claimable) {
@@ -91,6 +105,9 @@
     if (!snapshot.claimable.length) {
       list.innerHTML = `<li><span class="muted">${t.bounty_none || "No open bounties discovered"}</span></li>`;
     }
+    ledgerEntries = Array.isArray(snapshot.ledger.entries) ? snapshot.ledger.entries : [];
+    currentPage = 1;
+    renderLedgerTable();
     $("receipt").textContent = snapshot.sample_receipt
       ? JSON.stringify(snapshot.sample_receipt, null, 2)
       : "—";
@@ -108,11 +125,62 @@
     $("config-empty-cta").textContent = state.cta || "Open Settings";
   }
 
+  function formatBytes(bytes) {
+    if (!bytes || bytes === 0) return "0 B";
+    const units = ["B", "KB", "MB", "GB", "TB"];
+    const i = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1);
+    const v = bytes / Math.pow(1024, i);
+    return v.toFixed(i > 0 ? 1 : 0) + " " + units[i];
+  }
+
   function escapeHtml(s) {
     return String(s)
       .replace(/&/g, "&amp;")
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;");
+  }
+
+  let ledgerEntries = [];
+  let filteredEntries = [];
+  let currentPage = 1;
+  const PER_PAGE = 5;
+
+  function renderLedgerTable() {
+    const fromVal = $("filter-date-from").value;
+    const toVal = $("filter-date-to").value;
+    const activeType = document.querySelector("#filter-type .filter-btn.active");
+    const typeVal = activeType ? activeType.dataset.type : "";
+
+    filteredEntries = ledgerEntries.filter(function (e) {
+      if (typeVal && e.bounty_type !== typeVal) return false;
+      if (fromVal && e.date < fromVal) return false;
+      if (toVal && e.date > toVal + "T23:59:59Z") return false;
+      return true;
+    });
+
+    var totalPages = Math.max(1, Math.ceil(filteredEntries.length / PER_PAGE));
+    if (currentPage > totalPages) currentPage = totalPages;
+    if (currentPage < 1) currentPage = 1;
+
+    var start = (currentPage - 1) * PER_PAGE;
+    var pageEntries = filteredEntries.slice(start, start + PER_PAGE);
+    var tbody = $("ledger-tbody");
+
+    if (!pageEntries.length) {
+      tbody.innerHTML = '<tr><td colspan="4" class="muted" style="text-align:center;padding:1rem">No entries found</td></tr>';
+    } else {
+      tbody.innerHTML = pageEntries.map(function (e) {
+        var date = e.date ? e.date.slice(0, 10) : "—";
+        var typeLabel = e.bounty_type ? e.bounty_type.charAt(0).toUpperCase() + e.bounty_type.slice(1) : "—";
+        var amount = (e.amount_cents / 100).toFixed(2) + " MRG";
+        var title = escapeHtml(e.title || "—");
+        return "<tr><td>" + date + '</td><td><span class="badge-type badge-' + e.bounty_type + '">' + typeLabel + '</span></td><td>' + title + '</td><td class="amount">' + amount + "</td></tr>";
+      }).join("");
+    }
+
+    $("page-indicator").textContent = "Page " + currentPage + " of " + totalPages;
+    $("btn-page-prev").disabled = currentPage <= 1;
+    $("btn-page-next").disabled = currentPage >= totalPages;
   }
 
   async function loadMock() {
@@ -189,6 +257,32 @@
   const langSelect = $("lang-select");
   langSelect.value = lang();
   langSelect.addEventListener("change", reloadUI);
+
+  $("filter-date-from").addEventListener("change", function () { currentPage = 1; renderLedgerTable(); });
+  $("filter-date-to").addEventListener("change", function () { currentPage = 1; renderLedgerTable(); });
+  $("btn-filter-apply").addEventListener("click", function () { currentPage = 1; renderLedgerTable(); });
+  $("btn-filter-reset").addEventListener("click", function () {
+    $("filter-date-from").value = "";
+    $("filter-date-to").value = "";
+    document.querySelectorAll("#filter-type .filter-btn").forEach(function (b) { b.classList.remove("active"); });
+    var allBtn = document.querySelector('#filter-type .filter-btn[data-type=""]');
+    if (allBtn) allBtn.classList.add("active");
+    currentPage = 1;
+    renderLedgerTable();
+  });
+  document.querySelectorAll("#filter-type .filter-btn").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      document.querySelectorAll("#filter-type .filter-btn").forEach(function (b) { b.classList.remove("active"); });
+      btn.classList.add("active");
+    });
+  });
+  $("btn-page-prev").addEventListener("click", function () {
+    if (currentPage > 1) { currentPage--; renderLedgerTable(); }
+  });
+  $("btn-page-next").addEventListener("click", function () {
+    var totalPages = Math.max(1, Math.ceil(filteredEntries.length / PER_PAGE));
+    if (currentPage < totalPages) { currentPage++; renderLedgerTable(); }
+  });
 
   applyLang();
   loadLive();

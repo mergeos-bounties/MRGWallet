@@ -24,6 +24,8 @@ import {
   getProfilesFromStorage,
   getProfileCount,
   buildProfileSnapshot,
+  exportVault,
+  importVault,
 } from "../packages/core/wallet.js";
 
 test("createVault yields stable mock address", () => {
@@ -215,4 +217,61 @@ test("profiles persist across storage reads", () => {
   assert.equal(profiles.length, 2);
   assert.equal(profiles[0].seed, "s1");
   assert.equal(profiles[1].seed, "s2");
+});
+
+// --- Vault import/export tests ---
+
+test("exportVault returns public metadata without seed", () => {
+  const v = createVault({ seed: "test-export", label: "Export Test" });
+  const exported = exportVault(v.address, v.label, v.secret_fingerprint);
+  assert.equal(exported.kind, "vault_export");
+  assert.equal(exported.address, v.address);
+  assert.equal(exported.label, "Export Test");
+  assert.equal(exported.secret_fingerprint, v.secret_fingerprint);
+  assert.ok(exported.protocol_version);
+  assert.ok(exported.exported_at);
+  assert.equal(exported.network, "solana");
+  assert.equal(exported.token_symbol, "MRG");
+  assert.equal(exported.seed, undefined);
+});
+
+test("exportVault throws when address is missing", () => {
+  assert.throws(() => exportVault(), /address is required/);
+  assert.throws(() => exportVault(""), /address is required/);
+});
+
+test("importVault parses valid export JSON", () => {
+  const v = createVault({ seed: "test-import", label: "Import Test" });
+  const exported = exportVault(v.address, v.label, v.secret_fingerprint);
+  const json = JSON.stringify(exported);
+  const result = importVault(json);
+  assert.equal(result.address, v.address);
+  assert.equal(result.label, "Import Test");
+  assert.equal(result.secret_fingerprint, v.secret_fingerprint);
+  assert.equal(result.kind, "vault_export");
+  assert.ok(result.exported_at);
+});
+
+test("importVault round-trip preserves all public fields", () => {
+  const v = createVault({ seed: "roundtrip", label: "Round Trip" });
+  const exported = exportVault(v.address, v.label, v.secret_fingerprint);
+  const json = JSON.stringify(exported);
+  const imported = importVault(json);
+  assert.deepEqual(imported, exported);
+});
+
+test("importVault rejects invalid JSON string", () => {
+  assert.throws(() => importVault(""), /expected a JSON string/);
+  assert.throws(() => importVault(null), /expected a JSON string/);
+  assert.throws(() => importVault("not-json"), /invalid JSON/);
+});
+
+test("importVault rejects missing address", () => {
+  const bad = JSON.stringify({ kind: "vault_export", protocol_version: "x", exported_at: new Date().toISOString() });
+  assert.throws(() => importVault(bad), /missing or invalid address/);
+});
+
+test("importVault rejects wrong kind", () => {
+  const bad = JSON.stringify({ kind: "vault", address: "abc", protocol_version: "x", exported_at: new Date().toISOString() });
+  assert.throws(() => importVault(bad), /kind must be 'vault_export'/);
 });
