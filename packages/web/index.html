@@ -68,6 +68,37 @@
     </section>
 
     <section class="card">
+      <h2 id="ledger-history-title">Ledger History</h2>
+      <div id="ledger-filters" class="filter-bar">
+        <div class="filter-dates">
+          <label class="filter-date"><span class="muted">From</span><input type="date" id="filter-date-from" class="mono" /></label>
+          <label class="filter-date"><span class="muted">To</span><input type="date" id="filter-date-to" class="mono" /></label>
+          <button id="btn-filter-apply" type="button">Filter</button>
+          <button id="btn-filter-reset" type="button" class="ghost">Reset</button>
+        </div>
+        <div id="filter-type" class="type-filters">
+          <button class="filter-btn active" data-type="">All</button>
+          <button class="filter-btn" data-type="bug">Bug</button>
+          <button class="filter-btn" data-type="feature">Feature</button>
+          <button class="filter-btn" data-type="qa">QA</button>
+          <button class="filter-btn" data-type="docs">Docs</button>
+          <button class="filter-btn" data-type="payment">Payment</button>
+        </div>
+      </div>
+      <div id="ledger-table-wrap">
+        <table id="ledger-table">
+          <thead><tr><th>Date</th><th>Type</th><th>Title</th><th class="amt">Amount</th></tr></thead>
+          <tbody id="ledger-tbody"></tbody>
+        </table>
+      </div>
+      <div id="ledger-pagination" class="pagination">
+        <button id="btn-page-prev" type="button" class="ghost">Prev</button>
+        <span id="page-indicator">Page 1 of 1</span>
+        <button id="btn-page-next" type="button" class="ghost">Next</button>
+      </div>
+    </section>
+
+    <section class="card">
       <h2 id="receipt-title">Claim receipt</h2>
       <pre id="receipt" class="mono pre">—</pre>
       <p class="muted">Binds wallet address to ledger tip. Payout still needs admin accept / Solana releasePayout.</p>

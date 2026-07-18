@@ -249,6 +249,7 @@
     const v = vault || (await createVault());
     const token = summarizeTokenEconomy(economy);
     const ledger = summarizeLedgerProof(proof);
+    ledger.entries = Array.isArray(proof.entries) ? proof.entries : [];
     const solana = summarizeSolana(solanaManifest);
     const bounties = discoverClaimableBounties(market, 10);
     const bw = bandwidthShare || mockBandwidthShare();
@@ -294,7 +295,7 @@
   function mockEconomy() {
     return {
       token_symbol: "MRG",
-      stats: { ledger_entry_count: 40 },
+      stats: { ledger_entry_count: 16 },
       totals: {
         minted_cents: 500000,
         remaining_reserve_cents: 447500,
@@ -303,16 +304,38 @@
     };
   }
 
+  function mockLedgerEntries() {
+    return [
+      { sequence: 1,  date: "2026-01-05T10:30:00Z",  bounty_type: "bug",     title: "Fix login crash",        amount_cents: 2500,  entry_hash: "a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1" },
+      { sequence: 2,  date: "2026-01-18T14:15:00Z",  bounty_type: "feature", title: "Dark mode toggle",        amount_cents: 5000,  entry_hash: "b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2" },
+      { sequence: 3,  date: "2026-02-02T09:00:00Z",  bounty_type: "qa",      title: "E2E test suite",          amount_cents: 1500,  entry_hash: "c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3" },
+      { sequence: 4,  date: "2026-02-14T11:45:00Z",  bounty_type: "docs",    title: "API reference docs",      amount_cents: 1000,  entry_hash: "d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4" },
+      { sequence: 5,  date: "2026-02-28T16:30:00Z",  bounty_type: "payment", title: "Milestone payout Q1",     amount_cents: 10000, entry_hash: "e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5" },
+      { sequence: 6,  date: "2026-03-10T08:20:00Z",  bounty_type: "bug",     title: "Memory leak fix",         amount_cents: 3000,  entry_hash: "f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6" },
+      { sequence: 7,  date: "2026-03-22T13:10:00Z",  bounty_type: "feature", title: "Export CSV feature",      amount_cents: 4500,  entry_hash: "a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7" },
+      { sequence: 8,  date: "2026-04-05T17:00:00Z",  bounty_type: "qa",      title: "Regression tests",        amount_cents: 2000,  entry_hash: "b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8" },
+      { sequence: 9,  date: "2026-04-19T12:30:00Z",  bounty_type: "docs",    title: "User guide update",       amount_cents: 800,   entry_hash: "c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9" },
+      { sequence: 10, date: "2026-05-01T09:45:00Z",  bounty_type: "payment", title: "Milestone payout Q2",     amount_cents: 12000, entry_hash: "d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0" },
+      { sequence: 11, date: "2026-05-15T15:20:00Z",  bounty_type: "bug",     title: "Auth token refresh bug",  amount_cents: 3500,  entry_hash: "e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1" },
+      { sequence: 12, date: "2026-06-01T11:00:00Z",  bounty_type: "feature", title: "Webhook integration",      amount_cents: 6000,  entry_hash: "f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2" },
+      { sequence: 13, date: "2026-06-12T10:30:00Z",  bounty_type: "qa",      title: "Performance benchmarks",  amount_cents: 1800,  entry_hash: "a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3" },
+      { sequence: 14, date: "2026-06-25T14:00:00Z",  bounty_type: "docs",    title: "Contributing guide",      amount_cents: 700,   entry_hash: "b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4" },
+      { sequence: 15, date: "2026-07-04T08:00:00Z",  bounty_type: "payment", title: "Milestone payout Q3",     amount_cents: 15000, entry_hash: "c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5" },
+      { sequence: 16, date: "2026-07-10T16:45:00Z",  bounty_type: "bug",     title: "CSS layout issue",        amount_cents: 1200,  entry_hash: "d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6" },
+    ];
+  }
+
   function mockProof() {
+    const entries = mockLedgerEntries();
     const tip = "a".repeat(64);
     return {
       valid: true,
-      entry_count: 40,
-      verified_count: 40,
+      entry_count: entries.length,
+      verified_count: entries.length,
       broken_count: 0,
       root_hash: tip,
       public_root_hash: "b".repeat(64),
-      entries: [{ sequence: 40, type: "ledger_manual_credit", entry_hash: tip, amount_cents: 25 }],
+      entries,
     };
   }
 
@@ -431,6 +454,7 @@
     buildWalletSnapshot,
     mockEconomy,
     mockProof,
+    mockLedgerEntries,
     mockMarket,
     mockSolanaManifest,
     mockBandwidthShare,
