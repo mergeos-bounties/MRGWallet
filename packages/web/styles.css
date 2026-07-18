@@ -39,6 +39,24 @@ body {
   letter-spacing: 0.04em;
 }
 .badge.live { color: var(--ok); border-color: rgba(52, 211, 153, 0.4); }
+.status {
+  font-size: 0.75rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.status.offline {
+  background: rgba(255, 107, 107, 0.15);
+  color: #ff6b6b;
+  border: 1px solid rgba(255, 107, 107, 0.3);
+}
+.status.online {
+  background: rgba(52, 211, 153, 0.15);
+  color: var(--ok);
+  border: 1px solid rgba(52, 211, 153, 0.3);
+}
 main { padding: 1rem; max-width: 720px; margin: 0 auto; display: grid; gap: 0.9rem; }
 .card {
   background: color-mix(in srgb, var(--card) 92%, black);

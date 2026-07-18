@@ -243,6 +243,7 @@
     proof = {},
     market = {},
     solanaManifest = null,
+    bandwidthShare = null,
     workerId = "",
   } = {}) {
     const v = vault || (await createVault());
@@ -250,6 +251,7 @@
     const ledger = summarizeLedgerProof(proof);
     const solana = summarizeSolana(solanaManifest);
     const bounties = discoverClaimableBounties(market, 10);
+    const bw = bandwidthShare || mockBandwidthShare();
     const config = getWalletConfigState(workerId);
     const receipt = bounties[0]
       ? await buildWalletClaimReceipt({
@@ -274,6 +276,7 @@
       token,
       ledger,
       solana,
+      bandwidth_share: bw,
       config,
       claimable: bounties,
       sample_receipt: receipt,
@@ -339,6 +342,15 @@
       program_id: DEFAULT_SOLANA_PROGRAM_ID,
       target_chain: "solana",
       token_symbol: "MRG",
+    };
+  }
+
+  function mockBandwidthShare() {
+    return {
+      total_bytes_shared: 2457600000,
+      sessions_count: 12,
+      mrg_earned: 0,
+      status: "offline",
     };
   }
 
@@ -421,6 +433,7 @@
     mockProof,
     mockMarket,
     mockSolanaManifest,
+    mockBandwidthShare,
     mockWalletSnapshot,
     fetchTokenEconomy,
     fetchLedgerProof,

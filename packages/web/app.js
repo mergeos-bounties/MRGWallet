@@ -37,6 +37,8 @@
     h("token-title", t.token_title || "Token economy");
     h("ledger-title", t.ledger_title || "Ledger tip");
     h("solana-title", t.solana_title || "Solana binding");
+    const bwTitle = $("bw-title");
+    if (bwTitle) bwTitle.textContent = t.bw_title || "Bandwidth Share";
     h("bounty-title", t.bounty_title || "Claimable bounties");
     $("btn-refresh").textContent = t.bounty_refresh || "Refresh live";
     $("receipt-title").textContent = t.receipt_title || "Claim receipt";
@@ -81,6 +83,18 @@
       [t.status || "Status", snapshot.solana.status],
       [t.release_ix || "Release ix", snapshot.solana.release_instruction],
     ]);
+    const bw = snapshot.bandwidth_share;
+    if (bw) {
+      const statusEl = $("bw-status");
+      const online = bw.status === "online";
+      statusEl.textContent = online ? (t.bw_online || "Online") : (t.bw_offline || "Offline");
+      statusEl.className = "status " + (online ? "online" : "offline");
+      kv($("bw-dl"), [
+        [t.bw_bytes || "Bytes shared", formatBytes(bw.total_bytes_shared)],
+        [t.bw_sessions || "Sessions", String(bw.sessions_count)],
+        [t.bw_earned || "MRG earned", bw.mrg_earned.toFixed(1) + " MRG"],
+      ]);
+    }
     const list = $("bounty-list");
     list.innerHTML = "";
     for (const b of snapshot.claimable) {
@@ -106,6 +120,14 @@
     $("config-empty-message").textContent =
       state.message || "Add your GitHub worker ID before creating claim receipts.";
     $("config-empty-cta").textContent = state.cta || "Open Settings";
+  }
+
+  function formatBytes(bytes) {
+    if (!bytes || bytes === 0) return "0 B";
+    const units = ["B", "KB", "MB", "GB", "TB"];
+    const i = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1);
+    const v = bytes / Math.pow(1024, i);
+    return v.toFixed(i > 0 ? 1 : 0) + " " + units[i];
   }
 
   function escapeHtml(s) {

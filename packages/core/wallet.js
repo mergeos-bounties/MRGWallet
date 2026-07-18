@@ -289,6 +289,7 @@ export function buildWalletSnapshot({
   proof = {},
   market = {},
   solanaManifest = null,
+  bandwidthShare = null,
   workerId = "",
 } = {}) {
   const v = vault || createVault();
@@ -296,6 +297,7 @@ export function buildWalletSnapshot({
   const ledger = summarizeLedgerProof(proof);
   const solana = summarizeSolana(solanaManifest);
   const bounties = discoverClaimableBounties(market, 10);
+  const bw = bandwidthShare || mockBandwidthShare();
   const config = getWalletConfigState(workerId);
   const receipt = bounties[0]
     ? buildWalletClaimReceipt({ vault: v, bounty: bounties[0], proof: ledger, solana, workerId })
@@ -314,6 +316,7 @@ export function buildWalletSnapshot({
     token,
     ledger,
     solana,
+    bandwidth_share: bw,
     config,
     claimable: bounties,
     sample_receipt: receipt,
@@ -386,6 +389,15 @@ export function mockSolanaManifest() {
     program_id: DEFAULT_SOLANA_PROGRAM_ID,
     target_chain: "solana",
     token_symbol: "MRG",
+  };
+}
+
+export function mockBandwidthShare() {
+  return {
+    total_bytes_shared: 2457600000,
+    sessions_count: 12,
+    mrg_earned: 0,
+    status: "offline",
   };
 }
 
