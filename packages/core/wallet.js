@@ -466,3 +466,49 @@ export function buildProfileSnapshot(profile, { economy = {}, proof = {}, market
     workerId: profile.worker_id,
   });
 }
+
+/**
+ * Export vault public metadata to JSON (no raw secrets).
+ * Safe for backup or transfer; seed is never included.
+ */
+export function exportVaultToJson(vault = null) {
+  const v = vault || createVault();
+  return {
+    protocol_version: PROTOCOL_VERSION,
+    kind: "vault_export",
+    label: v.label || "Primary",
+    address: v.address,
+    network: v.network || "solana",
+    token_symbol: v.token_symbol || "MRG",
+    secret_fingerprint: v.secret_fingerprint || "",
+    mock: v.mock !== false, // default true for safety
+    notice: "This export contains public metadata only. The seed is not included and cannot be recovered from this file.",
+    exported_at: new Date().toISOString(),
+  };
+}
+
+/**
+ * Validate exported vault JSON structure.
+ */
+export function validateVaultJson(json = {}) {
+  if (!json || typeof json !== "object") return { valid: false, error: "Invalid JSON object" };
+  if (json.kind !== "vault_export") return { valid: false, error: "Invalid export kind" };
+  if (!json.address || typeof json.address !== "string") return { valid: false, error: "Missing address" };
+  if (!json.protocol_version || typeof json.protocol_version !== "string") return { valid: false, error: "Missing protocol_version" };
+  return { valid: true, address: json.address };
+}
+
+/**
+ * Import vault from seed string via secure prompt.
+ * Never logs or stores the seed; returns vault derived from seed.
+ */
+export function importVaultFromSeed(seed, { label = "Imported" } = {}) {
+  if (!seed || typeof seed !== "string") {
+    throw new Error("Seed is required and must be a non-empty string");
+  }
+  const s = String(seed).trim();
+  if (s.length < 8) {
+    throw new Error("Seed must be at least 8 characters");
+  }
+  return createVault({ seed: s, label });
+}

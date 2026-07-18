@@ -26,6 +26,14 @@ import {
   buildProfileSnapshot,
 } from "../packages/core/wallet.js";
 
+// Import new functions for testing
+import {
+  exportVaultToJson,
+  validateVaultJson,
+  importVaultFromSeed,
+  PROTOCOL_VERSION,
+} from "../packages/core/wallet.js";
+
 test("createVault yields stable mock address", () => {
   const a = createVault({ seed: "demo" });
   const b = createVault({ seed: "demo" });
@@ -215,4 +223,73 @@ test("profiles persist across storage reads", () => {
   assert.equal(profiles.length, 2);
   assert.equal(profiles[0].seed, "s1");
   assert.equal(profiles[1].seed, "s2");
+});
+
+// --- Vault Import/Export tests ---
+
+test("exportVaultToJson exports public metadata only", () => {
+  const vault = createVault({ seed: "export-test", label: "Backup" });
+  const exported = exportVaultToJson(vault);
+  assert.equal(exported.kind, "vault_export");
+  assert.equal(exported.label, "Backup");
+  assert.equal(exported.address, vault.address);
+  assert.equal(exported.token_symbol, "MRG");
+  assert.ok(exported.exported_at);
+  assert.ok(exported.notice);
+  assert.equal(exported.secret_fingerprint, vault.secret_fingerprint);
+  // Seed should not be in export
+  assert.equal(exported.seed, undefined);
+});
+
+test("exportVaultToJson default vault", () => {
+  const exported = exportVaultToJson();
+  assert.equal(exported.kind, "vault_export");
+  assert.ok(exported.address);
+  assert.equal(exported.mock, true);
+});
+
+test("validateVaultJson validates correct export", () => {
+  const vault = createVault({ seed: "validate-test" });
+  const exported = exportVaultToJson(vault);
+  const valid = validateVaultJson(exported);
+  assert.equal(valid.valid, true);
+  assert.equal(valid.address, vault.address);
+});
+
+test("validateVaultJson rejects invalid JSON", () => {
+  assert.equal(validateVaultJson(null).valid, false);
+  assert.ok(validateVaultJson(null).error);
+  assert.equal(validateVaultJson({}).valid, false);
+  assert.equal(validateVaultJson({ kind: "wrong" }).valid, false);
+});
+
+test("importVaultFromSeed creates vault from seed", () => {
+  const seed = "my-secret-seed-12345";
+  const vault = importVaultFromSeed(seed, { label: "Imported" });
+  assert.equal(vault.label, "Imported");
+  assert.ok(vault.address);
+  assert.equal(vault.protocol_version, PROTOCOL_VERSION);
+});
+
+test("importVaultFromSeed requires seed", () => {
+  assert.throws(() => importVaultFromSeed(null), /Seed is required/);
+  assert.throws(() => importVaultFromSeed(""), /Seed is required/);
+  assert.throws(() => importVaultFromSeed(123), /Seed is required/);
+});
+
+test("importVaultFromSeed validates seed length", () => {
+  assert.throws(() => importVaultFromSeed("short"), /at least 8 characters/);
+});
+
+test("importVaultFromSeed with default label", () => {
+  const vault = importVaultFromSeed("test-seed-abc");
+  assert.equal(vault.label, "Imported");
+});
+
+test("export/import roundtrip preserves address", () => {
+  const original = createVault({ seed: "roundtrip-test", label: "Original" });
+  const exported = exportVaultToJson(original);
+  const imported = importVaultFromSeed("roundtrip-test", { label: "Roundtrip" });
+  assert.equal(imported.address, original.address);
+  assert.equal(imported.label, "Roundtrip");
 });
