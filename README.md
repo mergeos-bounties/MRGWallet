@@ -52,6 +52,8 @@ See the full walkthrough: [docs/CHROME_INSTALL.md](docs/CHROME_INSTALL.md)
 1. `npm run build:extensions`
 2. `about:debugging` → This Firefox → **Load Temporary Add-on** → `dist/extensions/firefox/manifest.json`
 
+See [Firefox install walkthrough](docs/FIREFOX_INSTALL.md) for details, troubleshooting, and Android Nightly setup.
+
 ### Android
 
 ```powershell
