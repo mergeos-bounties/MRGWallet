@@ -243,6 +243,46 @@ export function buildWalletClaimReceipt({
   };
 }
 
+/**
+ * Export vault as a JSON-safe object — public metadata only, NO seed/private key.
+ */
+export function exportVault(address, label, fingerprint) {
+  if (!address || typeof address !== "string") throw new Error("exportVault: address is required");
+  return {
+    protocol_version: PROTOCOL_VERSION,
+    kind: "vault_export",
+    address,
+    label: label || "",
+    secret_fingerprint: fingerprint || "",
+    network: "solana",
+    token_symbol: "MRG",
+    mock: true,
+    exported_at: new Date().toISOString(),
+  };
+}
+
+/**
+ * Import a vault export JSON string — validates structure, returns parsed data.
+ * Does NOT import or restore any seed/private key material.
+ */
+export function importVault(jsonString) {
+  if (!jsonString || typeof jsonString !== "string") {
+    throw new Error("importVault: expected a JSON string");
+  }
+  let data;
+  try {
+    data = JSON.parse(jsonString);
+  } catch {
+    throw new Error("importVault: invalid JSON");
+  }
+  if (!data || typeof data !== "object") throw new Error("importVault: exported data must be an object");
+  if (data.kind !== "vault_export") throw new Error("importVault: kind must be 'vault_export'");
+  if (!data.protocol_version) throw new Error("importVault: missing protocol_version");
+  if (!data.address || typeof data.address !== "string") throw new Error("importVault: missing or invalid address");
+  if (!data.exported_at) throw new Error("importVault: missing exported_at");
+  return data;
+}
+
 export function buildWalletSnapshot({
   vault = null,
   economy = {},
