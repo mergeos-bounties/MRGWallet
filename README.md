@@ -47,12 +47,15 @@ See the full walkthrough: [docs/CHROME_INSTALL.md](docs/CHROME_INSTALL.md)
 1. `npm run build:extensions` (or unpack a release zip)
 2. Chrome → Extensions → Developer mode → **Load unpacked** → `dist/extensions/chrome`
 
+See [Install screenshots](docs/INSTALL_SCREENSHOTS.md) for a visual step-by-step walkthrough.
+
 ### Firefox extension
 
 1. `npm run build:extensions`
 2. `about:debugging` → This Firefox → **Load Temporary Add-on** → `dist/extensions/firefox/manifest.json`
 
-See [Firefox install walkthrough](docs/FIREFOX_INSTALL.md) for details, troubleshooting, and Android Nightly setup.
+See [Firefox install walkthrough](docs/FIREFOX_INSTALL.md) for details, troubleshooting, and Android Nightly setup.  
+See [Install screenshots](docs/INSTALL_SCREENSHOTS.md) for a visual step-by-step walkthrough.
 
 ### Android
 
@@ -62,6 +65,8 @@ cd android
 # Android Studio → open this folder → Run app
 # or: .\gradlew.bat :app:assembleDebug
 ```
+
+See [Install screenshots](docs/INSTALL_SCREENSHOTS.md) for a visual step-by-step walkthrough.
 
 ### Release artifacts
 
