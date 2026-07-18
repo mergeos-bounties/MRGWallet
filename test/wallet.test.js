@@ -6,6 +6,7 @@ import {
   mockWalletSnapshot,
   buildWalletClaimReceipt,
   getWalletConfigState,
+  summarizeShareEarnings,
   resolveRewardMrg,
   discoverClaimableBounties,
   mockMarket,
@@ -75,7 +76,29 @@ test("mock wallet snapshot is complete", () => {
   assert.ok(s.ledger.tip_hash);
   assert.ok(s.solana.program_id);
   assert.ok(s.claimable.length >= 1);
+  assert.equal(s.share_earnings.pending_mrg, 12.5);
+  assert.equal(s.share_earnings.payout_status, "pending-admin-ledger");
   assert.ok(s.sample_receipt.ready);
+});
+
+test("share earnings summary supports offline MRGMinner-style mock data", () => {
+  const summary = summarizeShareEarnings({
+    mrgminer: {
+      source: "file:mrgminer-shares.json",
+      worker_id: "github:worker",
+      active_shares: 4,
+      pending_mrg: "8.5",
+      paid_mrg: 16,
+      payout_status: "ready",
+    },
+  });
+  assert.equal(summary.source, "file:mrgminer-shares.json");
+  assert.equal(summary.worker_id, "github:worker");
+  assert.equal(summary.active_shares, 4);
+  assert.equal(summary.pending_mrg, 8.5);
+  assert.equal(summary.paid_mrg, 16);
+  assert.equal(summary.lifetime_mrg, 24.5);
+  assert.equal(summary.payout_status, "ready");
 });
 
 test("wallet config state guides users when worker login is missing", () => {

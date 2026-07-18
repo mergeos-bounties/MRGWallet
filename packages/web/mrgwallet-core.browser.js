@@ -158,6 +158,24 @@
     };
   }
 
+  function summarizeShareEarnings(source = {}) {
+    const s = source.share_earnings || source.earnings || source.mrgminer || {};
+    const pending = Number(s.pending_mrg || s.pending || 0);
+    const paid = Number(s.paid_mrg || s.paid || 0);
+    const lifetime = Number(s.lifetime_mrg || s.total_mrg || pending + paid);
+    const activeShares = Number(s.active_shares || s.shares || 0);
+    return {
+      source: s.source || "mock",
+      worker_id: s.worker_id || null,
+      active_shares: Number.isFinite(activeShares) ? activeShares : 0,
+      pending_mrg: Number.isFinite(pending) ? pending : 0,
+      paid_mrg: Number.isFinite(paid) ? paid : 0,
+      lifetime_mrg: Number.isFinite(lifetime) ? lifetime : 0,
+      last_settlement: s.last_settlement || "not settled",
+      payout_status: s.payout_status || "mock-estimate",
+    };
+  }
+
   function resolveRewardMrg(item = {}) {
     const m = String(item.title || "").match(TITLE_MRG_RE);
     if (m) {
@@ -249,6 +267,7 @@
     const token = summarizeTokenEconomy(economy);
     const ledger = summarizeLedgerProof(proof);
     const solana = summarizeSolana(solanaManifest);
+    const shareEarnings = summarizeShareEarnings(market);
     const bounties = discoverClaimableBounties(market, 10);
     const config = getWalletConfigState(workerId);
     const receipt = bounties[0]
@@ -274,6 +293,7 @@
       token,
       ledger,
       solana,
+      share_earnings: shareEarnings,
       config,
       claimable: bounties,
       sample_receipt: receipt,
@@ -315,6 +335,16 @@
 
   function mockMarket() {
     return {
+      share_earnings: {
+        source: "mock:mrgminer",
+        worker_id: "github:demo",
+        active_shares: 3,
+        pending_mrg: 12.5,
+        paid_mrg: 37.5,
+        lifetime_mrg: 50,
+        last_settlement: "2026-07-15T00:00:00Z",
+        payout_status: "pending-admin-ledger",
+      },
       bounties: [
         {
           id: "prj_demo:1",
