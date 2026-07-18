@@ -4,6 +4,10 @@
   const lang = () => localStorage.getItem("mrgwallet_lang") || "en";
   const L = () => (window.MRGLang && window.MRGLang[lang()]) || {};
 
+  // Parse ?task_id= from query string (supports deep link preselect)
+  const urlParams = new URLSearchParams(window.location.search);
+  const DEEP_LINK_TASK_ID = urlParams.get("task_id") || "";
+
   function __(key, fallback) {
     const v = L()[key];
     return v !== undefined ? v : (fallback ?? key);
@@ -97,13 +101,30 @@
     }
     const list = $("bounty-list");
     list.innerHTML = "";
+    let preselectIndex = -1;
     for (const b of snapshot.claimable) {
       const li = document.createElement("li");
-      li.innerHTML = `<span>${b.id}<br/><span class="muted">${escapeHtml(b.title)}</span></span><span class="reward">${b.reward_mrg} MRG</span>`;
+      const isPreselected = DEEP_LINK_TASK_ID && b.id === DEEP_LINK_TASK_ID;
+      if (isPreselected) preselectIndex = snapshot.claimable.indexOf(b);
+      li.innerHTML = `<span>${b.id}<br/><span class="muted">${escapeHtml(b.title)}</span></span><span class="reward${isPreselected ? " highlight" : ""}">${b.reward_mrg} MRG</span>`;
+      if (isPreselected) li.style.outline = "2px solid var(--accent)";
       list.appendChild(li);
     }
     if (!snapshot.claimable.length) {
       list.innerHTML = `<li><span class="muted">${t.bounty_none || "No open bounties discovered"}</span></li>`;
+    }
+    // If deep-linked task_id was found, auto-generate claim receipt
+    if (preselectIndex >= 0 && DEEP_LINK_TASK_ID) {
+      const bounty = snapshot.claimable[preselectIndex];
+      MRGWallet.buildWalletClaimReceipt({
+        vault: snapshot.vault,
+        bounty,
+        proof: snapshot.ledger,
+        solana: snapshot.solana,
+        workerId: localStorage.getItem("mrgwallet_worker") || "",
+      }).then((receipt) => {
+        $("receipt").textContent = JSON.stringify(receipt, null, 2);
+      });
     }
     ledgerEntries = Array.isArray(snapshot.ledger.entries) ? snapshot.ledger.entries : [];
     currentPage = 1;

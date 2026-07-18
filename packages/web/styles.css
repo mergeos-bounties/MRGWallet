@@ -117,6 +117,7 @@ button:hover, .btn:hover { filter: brightness(1.08); }
   font-size: 0.88rem;
 }
 .list .reward { color: var(--accent2); font-weight: 700; white-space: nowrap; }
+.list .reward.highlight { color: #fbbf24; }
 .pre {
   background: #0a0f1c;
   border: 1px solid var(--line);
