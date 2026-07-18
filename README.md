@@ -42,6 +42,8 @@ npm run package:release   # zips under dist/release/
 
 ### Chrome extension
 
+See the full walkthrough: [docs/CHROME_INSTALL.md](docs/CHROME_INSTALL.md)
+
 1. `npm run build:extensions` (or unpack a release zip)
 2. Chrome → Extensions → Developer mode → **Load unpacked** → `dist/extensions/chrome`
 
