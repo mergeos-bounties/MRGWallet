@@ -344,24 +344,43 @@ export function mockEconomy() {
   };
 }
 
+const _MOCK_HASHES = [
+  "6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b",
+  "d4735e3a265e16eee03f59718b9b5d03019c07d8b6c51f90da3a666eec13ab35",
+  "4e07408562bedb8b60ce05c1decfe3ad16b72230967de01f640b7e4729b49fce",
+  "4b227777d4dd1fc61c6f884f48641d02b4d121d3fd328cb08b5531fcacdabf8a",
+  "ef2d127de37b942baad06145e54b0c619a1f22327b2ebbcfbec78f5564afe39d",
+  "e7f6c011776e8db7cd330b54174fd76f7d0216b612387a5ffcfb81e6f0919683",
+  "7902699be42c8a8e46fbbb4501726517e86b22c56a189f7625a6da49081b2451",
+  "2c624232cdd221771294dfbb310aca000a0df6ac8b66b696d90ef06fdefb64a3",
+  "19581e27de7ced00ff1ce50b2047e7a567c76b1cbaebabe5ef03f7c3017bb5b7",
+  "4a44dc15364204a80fe80e9039455cc1608281820fe2b24f1e5233ade6af1dd5",
+  "4fc82b26aecb47d2868c4efbe3581732a3e7cbcc6c2efb32062c08170a05eeb8",
+  "6b51d431df5d7f141cbececcf79edf3dd861c3b4069f0b11661a3eefacbba918",
+  "3fdba35f04dc8c462986c992bcf875546257113072a909c162f7e470e581e278",
+  "8527a891e224136950ff32ca212b45bc93f69fbb801c3b1ebedac52775f99e61",
+  "e629fa6598d732768f7c726b4b621285f9c3b85303900aa912017db7617d8bdb",
+  "b17ef6d19c7a5b1ee83b907c595526dcb1eb06db8227d650d5dda0a9f4ce8cd9",
+];
+
 export function mockLedgerEntries() {
   return [
-    { sequence: 1,  date: "2026-01-05T10:30:00Z",  bounty_type: "bug",     title: "Fix login crash",        amount_cents: 2500,  entry_hash: "a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1" },
-    { sequence: 2,  date: "2026-01-18T14:15:00Z",  bounty_type: "feature", title: "Dark mode toggle",        amount_cents: 5000,  entry_hash: "b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2" },
-    { sequence: 3,  date: "2026-02-02T09:00:00Z",  bounty_type: "qa",      title: "E2E test suite",          amount_cents: 1500,  entry_hash: "c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3" },
-    { sequence: 4,  date: "2026-02-14T11:45:00Z",  bounty_type: "docs",    title: "API reference docs",      amount_cents: 1000,  entry_hash: "d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4" },
-    { sequence: 5,  date: "2026-02-28T16:30:00Z",  bounty_type: "payment", title: "Milestone payout Q1",     amount_cents: 10000, entry_hash: "e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5" },
-    { sequence: 6,  date: "2026-03-10T08:20:00Z",  bounty_type: "bug",     title: "Memory leak fix",         amount_cents: 3000,  entry_hash: "f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6" },
-    { sequence: 7,  date: "2026-03-22T13:10:00Z",  bounty_type: "feature", title: "Export CSV feature",      amount_cents: 4500,  entry_hash: "a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7" },
-    { sequence: 8,  date: "2026-04-05T17:00:00Z",  bounty_type: "qa",      title: "Regression tests",        amount_cents: 2000,  entry_hash: "b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8" },
-    { sequence: 9,  date: "2026-04-19T12:30:00Z",  bounty_type: "docs",    title: "User guide update",       amount_cents: 800,   entry_hash: "c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9" },
-    { sequence: 10, date: "2026-05-01T09:45:00Z",  bounty_type: "payment", title: "Milestone payout Q2",     amount_cents: 12000, entry_hash: "d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0" },
-    { sequence: 11, date: "2026-05-15T15:20:00Z",  bounty_type: "bug",     title: "Auth token refresh bug",  amount_cents: 3500,  entry_hash: "e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1" },
-    { sequence: 12, date: "2026-06-01T11:00:00Z",  bounty_type: "feature", title: "Webhook integration",      amount_cents: 6000,  entry_hash: "f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2" },
-    { sequence: 13, date: "2026-06-12T10:30:00Z",  bounty_type: "qa",      title: "Performance benchmarks",  amount_cents: 1800,  entry_hash: "a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3" },
-    { sequence: 14, date: "2026-06-25T14:00:00Z",  bounty_type: "docs",    title: "Contributing guide",      amount_cents: 700,   entry_hash: "b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4" },
-    { sequence: 15, date: "2026-07-04T08:00:00Z",  bounty_type: "payment", title: "Milestone payout Q3",     amount_cents: 15000, entry_hash: "c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5" },
-    { sequence: 16, date: "2026-07-10T16:45:00Z",  bounty_type: "bug",     title: "CSS layout issue",        amount_cents: 1200,  entry_hash: "d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6" },
+    { sequence: 1,  date: "2026-01-05T10:30:00Z",  bounty_type: "bug",     title: "Fix login crash",        amount_cents: 2500,  entry_hash: _MOCK_HASHES[0] },
+    { sequence: 2,  date: "2026-01-18T14:15:00Z",  bounty_type: "feature", title: "Dark mode toggle",        amount_cents: 5000,  entry_hash: _MOCK_HASHES[1] },
+    { sequence: 3,  date: "2026-02-02T09:00:00Z",  bounty_type: "qa",      title: "E2E test suite",          amount_cents: 1500,  entry_hash: _MOCK_HASHES[2] },
+    { sequence: 4,  date: "2026-02-14T11:45:00Z",  bounty_type: "docs",    title: "API reference docs",      amount_cents: 1000,  entry_hash: _MOCK_HASHES[3] },
+    { sequence: 5,  date: "2026-02-28T16:30:00Z",  bounty_type: "payment", title: "Milestone payout Q1",     amount_cents: 10000, entry_hash: _MOCK_HASHES[4] },
+    { sequence: 6,  date: "2026-03-10T08:20:00Z",  bounty_type: "bug",     title: "Memory leak fix",         amount_cents: 3000,  entry_hash: _MOCK_HASHES[5] },
+    { sequence: 7,  date: "2026-03-22T13:10:00Z",  bounty_type: "feature", title: "Export CSV feature",      amount_cents: 4500,  entry_hash: _MOCK_HASHES[6] },
+    { sequence: 8,  date: "2026-04-05T17:00:00Z",  bounty_type: "qa",      title: "Regression tests",        amount_cents: 2000,  entry_hash: _MOCK_HASHES[7] },
+    { sequence: 9,  date: "2026-04-19T12:30:00Z",  bounty_type: "docs",    title: "User guide update",       amount_cents: 800,   entry_hash: _MOCK_HASHES[8] },
+    { sequence: 10, date: "2026-05-01T09:45:00Z",  bounty_type: "payment", title: "Milestone payout Q2",     amount_cents: 12000, entry_hash: _MOCK_HASHES[9] },
+    { sequence: 11, date: "2026-05-15T15:20:00Z",  bounty_type: "bug",     title: "Auth token refresh bug",  amount_cents: 3500,  entry_hash: _MOCK_HASHES[10] },
+    { sequence: 12, date: "2026-06-01T11:00:00Z",  bounty_type: "feature", title: "Webhook integration",      amount_cents: 6000,  entry_hash: _MOCK_HASHES[11] },
+    { sequence: 13, date: "2026-06-12T10:30:00Z",  bounty_type: "qa",      title: "Performance benchmarks",  amount_cents: 1800,  entry_hash: _MOCK_HASHES[12] },
+    { sequence: 14, date: "2026-06-25T14:00:00Z",  bounty_type: "docs",    title: "Contributing guide",      amount_cents: 700,   entry_hash: _MOCK_HASHES[13] },
+    { sequence: 15, date: "2026-07-04T08:00:00Z",  bounty_type: "payment", title: "Milestone payout Q3",     amount_cents: 15000, entry_hash: _MOCK_HASHES[14] },
+    { sequence: 16, date: "2026-07-10T16:45:00Z",  bounty_type: "bug",     title: "CSS layout issue",        amount_cents: 1200,  entry_hash: _MOCK_HASHES[15] },
   ];
 }
 
