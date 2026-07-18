@@ -428,7 +428,6 @@
     fetchSolanaManifest,
     fetchLiveWalletBundle,
   };
-})(typeof window !== "undefined" ? window : globalThis);
 
   function mockSolanaManifest() {
     return {
@@ -492,36 +491,4 @@
     ]);
     return { economy, proof, market, solanaManifest, source: "live" };
   }
-
-  global.MRGWallet = {
-    SHOP_BASE,
-    SCAN_BASE,
-    DEFAULT_SOLANA_PROGRAM_ID,
-    PROTOCOL_VERSION,
-    sha256Hex,
-    base58Encode,
-    deriveAddress,
-    createVault,
-    mrgFromCents,
-    scanAddressUrl,
-    scanTxUrl,
-    ledgerReferenceBytes32,
-    summarizeTokenEconomy,
-    summarizeLedgerProof,
-    summarizeSolana,
-    resolveRewardMrg,
-    discoverClaimableBounties,
-    buildWalletClaimReceipt,
-    buildWalletSnapshot,
-    mockEconomy,
-    mockProof,
-    mockMarket,
-    mockSolanaManifest,
-    mockWalletSnapshot,
-    fetchTokenEconomy,
-    fetchLedgerProof,
-    fetchMarketplace,
-    fetchSolanaManifest,
-    fetchLiveWalletBundle,
-  };
 })(typeof window !== "undefined" ? window : globalThis);
