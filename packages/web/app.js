@@ -105,9 +105,20 @@
     if (!snapshot.claimable.length) {
       list.innerHTML = `<li><span class="muted">${t.bounty_none || "No open bounties discovered"}</span></li>`;
     }
-    ledgerEntries = Array.isArray(snapshot.ledger.entries) ? snapshot.ledger.entries : [];
-    currentPage = 1;
-    renderLedgerTable();
+    const txList = $("tx-list");
+    if (txList) {
+      txList.innerHTML = "";
+      const entries = snapshot.ledger.entries || [];
+      for (const e of entries.slice(-25)) {
+        const li = document.createElement("li");
+        const amt = e.amount_cents ? `$${(Number(e.amount_cents) / 100).toFixed(2)}` : "";
+        li.innerHTML = `<span style="font-size:0.8rem">#${e.sequence} ${escapeHtml(e.type || "entry")}</span><span style="font-size:0.8rem;color:var(--muted);font-family:monospace">${short(e.entry_hash || "", 8)}${amt ? ` <span class="reward">${amt}</span>` : ""}</span>`;
+        txList.appendChild(li);
+      }
+      if (!entries.length) {
+        txList.innerHTML = `<li><span class="muted">No ledger entries</span></li>`;
+      }
+    }
     $("receipt").textContent = snapshot.sample_receipt
       ? JSON.stringify(snapshot.sample_receipt, null, 2)
       : "—";
