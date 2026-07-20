@@ -374,6 +374,12 @@
           project_id: "prj_demo",
           status: "open",
         },
+        {
+          id: "7",
+          title: "Deep link: [100 MRG] mrgwallet://claim?task_id=",
+          project_id: "mergeos-bounties/MRGWallet",
+          status: "open",
+        },
       ],
     };
   }
